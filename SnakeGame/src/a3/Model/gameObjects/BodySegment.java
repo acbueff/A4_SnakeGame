@@ -1,0 +1,120 @@
+package a3.Model.gameObjects;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.util.ArrayList;
+
+import a3.Model.IDrawable;
+
+/**
+ * BodySegment provides body of Snakes object.
+ * BodySegment has a fixed color
+ * @author Andreas 
+ *
+ */
+public class BodySegment extends MoveableObject{
+	
+	
+	private final int size =10;
+	private boolean mark;
+	
+	public int getBodySize(){
+		return this.size;
+	}
+	
+	
+	public BodySegment(int heading, int speed, float posX, float posY, Color newColor){
+		this.setHeading(heading);
+		this.setSpeed(speed);
+		this.setPointLocation(posX, posY);
+		super.setColor(newColor);
+	}
+
+	//NOT implemented
+	public void move(int time) {
+		
+		float angle = (90 - this.getHeading());
+		
+		float deltaX = (int) (Math.cos(Math.toRadians(angle))*this.getSpeed());
+		float deltaY = (int) (Math.sin(Math.toRadians(angle))*this.getSpeed());
+		
+		float newX = this.getLocationX() + deltaX;
+		float newY = this.getLocationY() + deltaY;
+		
+		
+		this.setPointLocation(newX, newY);
+		
+	}
+
+
+	//Overriding for security
+	public void setColor(Color newColor){
+		newColor = null;
+		
+	}
+
+	@Override
+	public void draw(Graphics g) {
+		  
+		g.setColor(this.getColor());
+		g.fillRect((int)this.getLocationX()-size/2, (int)this.getLocationY()-size/2, size, size); 
+		
+		
+		
+	}
+
+	@Override
+	public boolean collidesWith(ICollider otherObject) {
+		
+		return false;
+	}
+
+
+	@Override
+	public void handleCollision(ICollider otherObject) {
+		
+		
+	}
+
+
+	@Override
+	public void addCollisionList(ICollider collobj) {
+		collobj.addCollisionList(this);
+		
+	}
+
+
+	@Override
+	public void removeCollision(ICollider obj) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void clearCollisions(ArrayList<ICollider> collList) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public ArrayList<ICollider> getCollisionList() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	@Override
+	public void setMark(boolean mark) {
+		this.mark = mark;
+	}
+
+
+	@Override
+	public boolean getMark() {
+		
+		return this.mark;
+	}
+	
+
+}

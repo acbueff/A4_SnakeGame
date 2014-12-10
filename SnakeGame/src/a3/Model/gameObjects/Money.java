@@ -1,0 +1,146 @@
+package a3.Model.gameObjects;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.util.ArrayList;
+import java.util.Random;
+
+import a3.Model.IDrawable;
+import a3.Model.ISelectable;
+import a3.Model.Point;
+
+/**
+ * Money class which allows player score to increase
+ * Color is changeable, but not location
+ * @author Andreas
+ *
+ */
+public class Money extends FixedObject implements ISelectable{
+	
+	Random random = new Random();
+	
+	private final int size = 15;
+	private boolean mark;//for removal in collisions
+	private boolean isSelected;
+	
+	//Value of money to be added to player score
+	private final int value = random.nextInt(99) + 1;
+	
+	//Constructor
+	public Money(float posX, float posY, Color newColor){
+		super.setPointLocation(posX, posY);
+		this.setColor(newColor);
+		
+	}
+	
+	public int getSize(){
+		return size;
+	}
+
+	/**
+	 * Money is an unfilled circle
+	 */
+	public void draw(Graphics g) {
+		if(isSelected()){
+			
+			int R = Math.abs(255 - this.getColor().getRed());
+			int G = Math.abs(255 - this.getColor().getGreen());
+			int B = Math.abs(255 - this.getColor().getBlue());
+			g.setColor(new Color(R,G,B));	
+			g.drawOval((int)this.getLocationX()-size/2, (int)this.getLocationY()-size/2, size, size);
+					
+		}else{
+		g.setColor(this.getColor());
+		g.drawOval((int)this.getLocationX()-size/2, (int)this.getLocationY()-size/2, size, size);//issue with float maybe?
+		}
+	}
+
+	
+	public int getValue() {
+		return value;
+	}
+
+	@Override
+	public boolean collidesWith(ICollider otherObject) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void handleCollision(ICollider otherObject) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void addCollisionList(ICollider collobj) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void removeCollision(ICollider obj) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void clearCollisions(ArrayList<ICollider> collList) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public ArrayList<ICollider> getCollisionList() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setMark(boolean mark) {
+		this.mark = mark;
+		
+	}
+
+	
+	public boolean getMark() {
+		
+		return this.mark;
+	}
+
+	@Override
+	public void setSelected(boolean yesNo) {
+		isSelected = yesNo;
+		
+	}
+
+	@Override
+	public boolean isSelected() {
+		
+		return isSelected;
+	}
+
+	@Override
+	public boolean contains(Point p) {
+		//mouse selection
+		int px = (int) p.getX();
+		int py = (int) p.getY();
+		
+		//shape location
+		int xLoc = (int)this.getLocationX()-size/2;//keep in mind true center of circle
+		int yLoc = (int)this.getLocationY()-size/2;
+		
+		if((px >= xLoc) && (px <= xLoc+size)
+			&& (py >= yLoc && (py <= yLoc+size))){return true;}
+		else{return false;}
+		
+	}
+
+	
+	
+	
+
+	
+	
+	
+
+}

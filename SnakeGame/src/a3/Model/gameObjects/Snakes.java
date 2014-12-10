@@ -1,0 +1,386 @@
+package a3.Model.gameObjects;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.util.ArrayList;
+import java.util.Random;
+
+import a3.Model.IDrawable;
+import a3.Model.Point;
+
+/**
+ * Snake Object for Game
+ * Will consist of a Head object and Body Segments which can grow
+ * during course of the game.
+ * @author Andreas
+ *
+ */
+public class Snakes extends MoveableObject{  //IDRAWABLE MIGHT BE REDUNDANT, REMOVE LATER
+	
+	//need?
+	private boolean mark;
+	
+	
+	private Head snakeHead;//will dictate direction of Snakes object
+	private int startSize = 3;//bodySeg amount
+	private ArrayList<Integer> bodySegHeading;//tracks position of individual BodySegment headings
+	private static ArrayList<BodySegment> bodySegPos;//collects BodySegments comprising Snakes body
+	private Point oldHeadLoc;
+	private Point newHeadLoc;
+	private  Point recall;
+	private static boolean useRecall;
+	private Point newSegLoc;
+	private int newSegCount;//Used to indicate whether new BodySegments have been added
+	private Random random = new Random();
+	private int delay = 1;
+	private static Snakes theSnake;//single global reference to the snake
+	
+	//Private for singleton
+	private Snakes(int heading, int speed, float posX, float posY, Color newColor){
+		
+		this.snakeHead = new Head(heading,speed,posX,posY,newColor);
+		this.bodySegPos = new ArrayList<BodySegment>();
+		
+			
+	}
+	
+	public Head getSnakeHead(){
+		return this.snakeHead;
+	}
+	
+	public Color getColor(){
+		return this.snakeHead.getColor();
+	}
+	
+	/**
+	 * Gives theSnake 3 BodySegments for the beginning of new Games
+	 */
+	public void NewSnake(){
+		theSnake.ClearBodySegment();
+		theSnake.snakeHead.setPointLocation(random.nextInt(200)+100, random.nextInt(200)+100);
+		theSnake.setNewSegCount(this.startSize);
+		
+		while(theSnake.getNewSegCount()!=0){
+			this.move(delay);
+		}
+		
+	}
+	
+	
+	/**
+	 * Empty array of BodySegments
+	 */
+	public void ClearBodySegment(){
+		theSnake.bodySegPos.clear();
+	}
+	
+	/**
+	 * Add new BodySegment at position of where Snakes Head was
+	 * @param amount
+	 */
+	public void addBodySegment(int pos, Point oldLocation){
+		
+		this.bodySegPos.add(pos, new BodySegment(this.snakeHead.getHeading(),this.snakeHead.getSpeed(),oldLocation.getX(),oldLocation.getY(),this.snakeHead.getColor()));
+		
+	}
+	
+	/**
+	 * Get heading directions of all present BodySegments
+	 * Utilized for movement of individual BodySegments
+	 */
+	public void getCurrentSegHeadings(){
+		this.bodySegHeading = new ArrayList<Integer>();
+		for(int j = 0; j < this.bodySegPos.size();j++ ){
+			this.bodySegHeading.add(j,((BodySegment)bodySegPos.get(j)).getHeading());
+		}
+		
+	}
+	
+	/**
+	 * Clear bodySegHeading array
+	 */
+	public void clearCurrentSegHeadings(){
+		this.bodySegHeading.clear();
+	}
+
+	
+	
+	
+	/**
+	 * provide access to theSnake, creating it if necessary
+	 * Implementation of a singleton
+	 * @param heading
+	 * @param speed
+	 * @param posX
+	 * @param posY
+	 * @param newColor
+	 * @return
+	 */
+	public static Snakes getSnakes(int heading, int speed, float posX, float posY, Color newColor){
+		if(theSnake == null){
+			theSnake = new Snakes(heading, speed, posX, posY, newColor);
+		}
+		return theSnake;
+	}
+	
+	/**
+	 * Snakes objects move the objects they contain, Head and BodySegments
+	 */
+	public void move(int time) {
+		
+		
+		//Save old location of Head
+		 oldHeadLoc = new Point(this.snakeHead.getLocationX(),this.snakeHead.getLocationY());//different cases for n,s,e,w
+		
+		
+		this.snakeHead.move(time);//move Head
+		newHeadLoc = new Point(this.snakeHead.getLocationX(),this.snakeHead.getLocationY()); 
+		this.getCurrentSegHeadings();//capture current headings of all BodySegments
+		
+		if(this.getNewSegCount() != 0){ //In cases of new BodySegments added due to Food objects or game start
+			newSegLoc = this.newLocFromSnake();
+			
+			//first case of adding bodysegment to snake
+			if(this.bodySegPos.size() == 0){
+				
+				this.addBodySegment(0,newSegLoc);
+				this.decrementNewSegCount();
+			}else{
+				
+				if(this.enoughSpace(this.snakeHead.getHeading(), this.snakeHead.getLocationX(), this.snakeHead.getLocationY(),
+								this.bodySegPos.get(0).getLocationX(), this.bodySegPos.get(0).getLocationY())){
+					
+					newSegLoc = this.newLocFromSnake();
+					this.addBodySegment(0,newSegLoc);
+					this.decrementNewSegCount();
+					this.clearCurrentSegHeadings();
+					this.getCurrentSegHeadings();
+				}
+							
+				
+				this.clearCurrentSegHeadings();//clear BodySegment headings due to new BodySegment
+				this.getCurrentSegHeadings();//get new BodySegment headings for reference
+			}
+		}
+		else{ //simply moving snake without adding bodysegments
+			//Move first BodySegment and set its heading to Head
+			
+			this.headSegMove();
+			
+			this.clearCurrentSegHeadings();
+			
+		}	
+	}
+	
+	/**
+	 * Updates bodySegment points
+	 * uses bodySegments at beginning of
+	 * array bodySegPos to determine location
+	 * for all bodySegments till end of array
+	 * @param oldPoint first point from seg before head
+	 */
+	public void segMove(Point oldPoint){
+		Point saveP = oldPoint;//trust
+		boolean check = true;
+		for(int i = 1; i < this.bodySegPos.size(); i++){
+			
+			if(check){
+				saveP = new Point(this.bodySegPos.get(i).getLocationX(),this.bodySegPos.get(i).getLocationY());
+				this.bodySegPos.get(i).setPointLocation(oldPoint);
+				check = false;
+			}
+			else{
+				oldPoint = new Point(this.bodySegPos.get(i).getLocationX(),this.bodySegPos.get(i).getLocationY());
+				this.bodySegPos.get(i).setPointLocation(saveP);
+				check = true;
+				
+			}
+			
+		}
+			
+	}
+	
+	/**
+	 * Determine if enough space
+	 * Available for bodySeg to move forward.
+	 *
+	 */
+	public void headSegMove(){
+		
+		if(this.snakeHead.getHeading() == 90 || this.snakeHead.getHeading() == 270 ){
+			if(Math.sqrt(Math.pow(this.bodySegPos.get(0).getLocationX() - this.snakeHead.getLocationX(),2) - 
+					Math.pow(this.bodySegPos.get(0).getLocationY() - this.snakeHead.getLocationY(), 2)) >= Math.sqrt(200)){
+				this.recall = new Point(this.bodySegPos.get(0).getLocationX(),this.bodySegPos.get(0).getLocationY());
+				this.bodySegPos.get(0).setPointLocation(this.newLocFromBodySeg());
+				this.segMove(recall);
+			}
+		}
+		else{
+			if(this.enoughSpace(this.snakeHead.getHeading(), this.snakeHead.getLocationX(), this.snakeHead.getLocationY(),
+					this.bodySegPos.get(0).getLocationX(), this.bodySegPos.get(0).getLocationY())){
+				this.recall = new Point(this.bodySegPos.get(0).getLocationX(),this.bodySegPos.get(0).getLocationY());
+				this.bodySegPos.get(0).setPointLocation(this.newLocFromBodySeg());
+				this.segMove(recall);
+			}
+			
+		}
+		
+	}
+	
+	public Point newLocFromSnake(){
+		Point newPoint;
+		if(this.snakeHead.getHeading() == 0){
+			newPoint = new Point(this.snakeHead.getLocationX(),this.snakeHead.getLocationY() - 10);
+		}else if(this.snakeHead.getHeading() == 90){
+			newPoint = new Point(this.snakeHead.getLocationX()-10,this.snakeHead.getLocationY());
+		}else if(this.snakeHead.getHeading() == 270){
+			newPoint = new Point(this.snakeHead.getLocationX(),this.snakeHead.getLocationY()+10);
+		}else{
+			newPoint = new Point(this.snakeHead.getLocationX()+10,this.snakeHead.getLocationY());
+		}
+		
+		return newPoint;
+	}
+	
+	/**
+	 * Checks to see if there is enough space between
+	 * snakehead and bodysegment to add another one
+	 * between them
+	 * @param heading
+	 * @param frontX
+	 * @param frontY
+	 * @param backX
+	 * @param backY
+	 * @return
+	 */
+	public boolean enoughSpace(int heading, float frontX,float frontY, float backX, float backY){
+		if(heading == 0 || heading == 180){
+			if(Math.abs(frontY - backY) >=21){ 		return true;}//test
+			
+			else{ return false;}
+		}
+		else if(heading == 90 || heading == 270){
+			if(Math.abs(frontX - backX) >=21){     return true;}
+			else{ return false;}
+		}else{return false;}
+			
+	}
+	
+	
+	
+	//DO STUFF HERE EVENTUALLY
+	public Point newLocFromBodySeg(){
+		Point newPoint;
+		if(this.snakeHead.getHeading() == 0){
+			newPoint = new Point(this.snakeHead.getLocationX(),this.snakeHead.getLocationY()-10);
+		}else if(this.snakeHead.getHeading() == 90){
+			newPoint = new Point(this.snakeHead.getLocationX()-10,this.snakeHead.getLocationY());
+		}else if(this.snakeHead.getHeading() == 270){
+			newPoint = new Point(this.snakeHead.getLocationX(),this.snakeHead.getLocationY()+10);
+		}else{
+			newPoint = new Point(this.snakeHead.getLocationX()+10,this.snakeHead.getLocationY());
+		}
+		return newPoint;
+	}
+	
+	
+	/**
+	 * ACCESS SNAKE BODYSEGPOS
+	 */
+	public ArrayList<BodySegment> getBodySegPos(){
+		return this.bodySegPos;
+	}
+	
+	
+	/**
+	 * Change direction of snake by changing heading of Head
+	 * @param dir
+	 */
+	public void changeSnakeHeading(String dir){
+		this.snakeHead.changeHeading(dir);
+	}
+
+	public int getNewSegCount() {
+		return newSegCount;
+	}
+
+	public void setNewSegCount(int newSegCount) {
+		this.newSegCount = newSegCount;
+	}
+	
+	public void decrementNewSegCount(){
+		this.newSegCount = this.newSegCount -1;
+	}
+
+	//Overriding
+	public void setColor(Color newColor){
+		newColor = null;
+		
+	}
+
+	/**
+	 * draw whole snake using Head and BodySegment
+	 */
+	public void draw(Graphics g) {
+		this.getSnakeHead().draw(g);
+		for(int s = 0; s < this.bodySegPos.size(); s++){
+			this.bodySegPos.get(s).draw(g);
+		}
+		
+	}
+
+	/**
+	 * Check for if otherObject is bodySegment, which is a snake object
+	 * else check if it is another GameObject
+	 */
+	public boolean collidesWith(ICollider otherObject) {
+		
+		return this.snakeHead.collidesWith(otherObject);
+		
+	}
+
+	
+	public void handleCollision(ICollider otherObject) {
+		
+		this.snakeHead.handleCollision(otherObject);
+	}
+
+	@Override
+	public void addCollisionList(ICollider collobj) {
+		
+		this.snakeHead.addCollisionList(collobj);
+	}
+
+	@Override
+	public void removeCollision(ICollider obj) {
+		this.snakeHead.removeCollision(obj);
+		
+	}
+
+	@Override
+	public void clearCollisions(ArrayList<ICollider> collList) {
+		this.snakeHead.clearCollisions(this.snakeHead.getCollisionList());
+		
+	}
+
+	@Override
+	public ArrayList<ICollider> getCollisionList() {
+		// TODO Auto-generated method stub
+		return this.snakeHead.getCollisionList();
+	}
+
+	@Override
+	public void setMark(boolean mark) {
+		
+		this.mark = mark;
+	}
+
+	@Override
+	public boolean getMark() {
+		// TODO Auto-generated method stub
+		return this.mark;
+	}
+	
+
+	
+
+}

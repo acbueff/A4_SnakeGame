@@ -1,0 +1,650 @@
+package a4.Model;
+
+import java.awt.Color;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Random;
+
+import javax.swing.JOptionPane;
+
+import a4.Model.gameObjects.Birds;
+import a4.Model.gameObjects.ChaseSnakeStrategy;
+import a4.Model.gameObjects.FixedObject;
+import a4.Model.gameObjects.FollowHeadingStrategy;
+import a4.Model.gameObjects.Food;
+import a4.Model.gameObjects.GameObject;
+import a4.Model.gameObjects.GameObjectCollection;
+import a4.Model.gameObjects.Money;
+import a4.Model.gameObjects.MoveableObject;
+import a4.Model.gameObjects.NorthWall;
+import a4.Model.gameObjects.Snakes;
+import a4.Model.gameObjects.Walls;
+import a4.Model.gameObjects.Weasel;
+import a4.View.IObserver;
+
+
+
+/**
+ * Game World class holds collection of GameObject classes
+ * 
+ * @author Andreas
+ *
+ */
+public class GameWorld implements IObservable, IGameWorld{
+	private Random random = new Random();
+	private static Player gameUser = new Player();
+	private static Clock gameClock = new Clock();
+	private final int FRAME = 800;
+	private final int WSMALL = 6;
+	private final int WLARGE = 600; 
+	private  int birdCount = 500;
+	 
+	private static boolean mode = true;//play mode, true indicates play, false is pause
+	
+	private static boolean Sound = false;
+	
+	private static boolean flag = false;
+	private  Sound collideFood  = foodSound();
+	private  Sound collideMoney = moneySound();
+	private  Sound collideWeasel = weaselSound();
+	private  Sound background = backgroundSound();//may move this one to Game
+	
+	
+	
+ 
+	
+	
+	private static ArrayList<IObserver> RegObserver = new ArrayList<IObserver>();//Register observers
+	
+	//Initial game objects that exist during course of Game
+
+	//Container to store game objects
+	private static GameObjectCollection gameObjectCollection;
+	
+	
+	
+	
+	//factory methods
+	public Snakes makeSnake(){ return Snakes.getSnakes(0,5,300,300,Color.RED);}
+	
+	public Birds makeBird(){return new Birds(random.nextInt(10)+1, random.nextInt(361), 10, random.nextInt(301)+10, random.nextInt(500)+10, Color.CYAN);}
+	
+	public Food makeFood(){return new Food(random.nextInt(500)+10, random.nextInt(500)+10, Color.ORANGE);}
+
+	public Money makeMoney(){return new Money(random.nextInt(500)+10,random.nextInt(500)+10, Color.GREEN);}
+	
+	public Weasel makeWeasel(){return new Weasel(random.nextInt(361), random.nextInt(570)+10, random.nextInt(570)+10, Color.MAGENTA);}
+	
+	public Sound foodSound(){
+		String slash = File.separator;
+		String soundDir = "." + slash + "sounds" + slash;
+		String fileName = "z1.wav";
+		String filePath = soundDir + fileName;
+		return new Sound(filePath);
+	}
+	public Sound moneySound(){
+		String slash = File.separator;
+		String soundDir = "." + slash + "sounds" + slash;
+		String fileName = "flowstep-bass.wav";
+		String filePath = soundDir + fileName;
+		return new Sound(filePath);
+	}
+	public Sound weaselSound(){
+		String slash = File.separator;
+		String soundDir = "." + slash + "sounds" + slash;
+		String fileName = "dub-break-synth1-wob.wav";
+		String filePath = soundDir + fileName;
+		return new Sound(filePath);
+	}
+	
+	public Sound backgroundSound(){
+		String slash = File.separator;
+		String soundDir = "." + slash + "sounds" + slash;
+		String fileName = "mashedupupvocalrobotthingy.wav";
+		String filePath = soundDir + fileName;
+		return new Sound(filePath);
+	}
+	
+	
+	
+	
+	public Walls makeWall(String dir){
+			if(dir.equals("n")){
+				return new Walls(WLARGE/2,  WLARGE - (WSMALL/2), WLARGE - (WSMALL*2), WSMALL, Color.BLACK);//north wall //997
+			}
+			else if(dir.equals("e")){
+				return new Walls(WLARGE - (WSMALL/2), WLARGE/2, WSMALL, WLARGE, Color.RED);//east wall
+			}
+			else if(dir.equals("s")){
+				return new Walls(WLARGE/2, WSMALL/2, WLARGE - (WSMALL*2) , WSMALL, Color.BLUE);
+			}
+			else{
+				return new Walls(4, WLARGE/2, WSMALL, WLARGE, Color.GREEN);
+			}
+	}
+	
+	public Walls makeNorthWall(){
+		return new NorthWall(WLARGE/2,  WLARGE - (WSMALL/2), WLARGE - (WSMALL*2), WSMALL, Color.BLACK);
+	}
+	
+	
+	/**
+	 *Creates initial Game Layout
+	 *Provides values for all GameObjects
+	 * 
+	 */
+	public void initLayout(){
+		
+		//Class holds all game objects in an ArrayList	
+		gameObjectCollection = new GameObjectCollection();
+		
+		//Snakes is a singleton
+		Snakes theSnake = makeSnake();
+		//Initializes theSnake with three BodySegment objects
+		theSnake.NewSnake();
+		
+		Birds theBird = makeBird();
+		theBird.translate(random.nextInt(301)+10, random.nextInt(500)+10);
+		Money theMoney = makeMoney();
+		theMoney.translate(random.nextInt(500)+10, random.nextInt(500)+10);
+		Food theFood = makeFood();
+		theFood.translate(random.nextInt(500)+10, random.nextInt(500)+10);
+		Weasel firstWeasel = makeWeasel();
+		firstWeasel.strategyList(new ChaseSnakeStrategy(firstWeasel),new FollowHeadingStrategy(firstWeasel));
+		firstWeasel.translate(random.nextInt(570)+10,random.nextInt(570)+10);
+		Weasel secondWeasel = makeWeasel();
+		secondWeasel.strategyList(new FollowHeadingStrategy(secondWeasel),new ChaseSnakeStrategy(secondWeasel));
+		secondWeasel.translate(random.nextInt(570)+10,random.nextInt(570)+10);
+		
+		
+		Walls nWall = makeWall("n");
+		Walls eWall = makeWall("e");
+		Walls sWall = makeWall("s");
+		Walls wWall = makeWall("w");
+		NorthWall northWall = (NorthWall) makeNorthWall();
+		//Add Game objects for initial Game layout 
+		 gameObjectCollection.add(theSnake);
+		 gameObjectCollection.add(theBird);
+		 gameObjectCollection.add(theMoney);
+		 gameObjectCollection.add(theFood);
+		 //gameObjectCollection.add(firstWeasel);
+		 gameObjectCollection.add(secondWeasel);
+		 //gameObjectCollection.add(nWall);
+		 gameObjectCollection.add(northWall);
+		 gameObjectCollection.add(eWall);
+		 gameObjectCollection.add(sWall);
+		 gameObjectCollection.add(wWall);
+		 
+		 
+		 this.notifyObservers();
+		 
+	
+		 
+	}
+	
+	
+	//for sound getters n setters
+	public void setSound(boolean sound){
+		Sound = sound;
+		this.notifyObservers();
+	}
+	
+	public int getFrame(){
+		return this.FRAME;
+	}
+	
+	public boolean getFlag(){
+		return flag;
+		
+	}
+	
+	public void setFlag(boolean flag){
+		 GameWorld.flag = flag;
+	}
+	
+	public boolean getSound(){
+		return Sound;
+	}
+	
+	//GET SOUNDS
+	public Sound getFoodSound(){
+		return collideFood;
+	}
+	
+	public Sound getMoneySound(){
+		return collideMoney;
+	}
+	
+	public Sound getWeaselSound(){
+		return collideWeasel;
+	}
+	
+	public Sound getBackgroundSound(){
+		return background;
+	}
+	
+	
+	//method to loop background music if sound is on
+	public void loopBackground(boolean on, boolean mode){
+		
+		if(mode && on){
+			background.loop();
+		}
+		else{
+			background.stop();
+		}
+	}
+	
+	
+	 
+	
+	
+	public Clock getGameClock(){
+		return gameClock;
+	}
+	
+	//Player getter
+	public Player getGameUser(){
+		return gameUser;
+	}
+	
+	//Get size of wall, for use in weasel strategy
+	public int getWallSize(boolean choice){
+		if(choice == true){
+			return this.WSMALL;
+		}
+		else{ return this.WLARGE;}
+	}
+	
+	//About command
+	public String aboutGame(){
+		String name = "Andreas Bueff";
+		String course = "CSc 133 - Object-Oriented Computer Graphics Programming";
+		String other = "Version 2.0";
+		
+		return name + "\n" + course + "\n" + other;
+	}
+	
+	//Getter for GameObjectCollection
+	public GameObjectCollection getGameObjectCollection(){
+		return gameObjectCollection;
+	}
+	
+	//Getter for list containing observers
+	public ArrayList<IObserver> getRegObserver(){
+		return RegObserver;
+	}
+
+	/**
+	 * Passes new direction to Snakes object 
+	 * Snakes object faces new direction
+	 * @param dir new direction
+	 */
+	public void changeHeading(String dir){
+		for(int i = 0; i<gameObjectCollection.size(); i++){
+			if(gameObjectCollection.get(i) instanceof Snakes){
+				((Snakes)gameObjectCollection.get(i)).changeSnakeHeading(dir);
+				
+				
+			}
+		}
+		this.notifyObservers();
+	}
+	
+	/**
+	 * All objects able to move in GameWorld collection use move method
+	 */
+	public void moveGameObject(int delay){
+		
+		for(GameObject obj: gameObjectCollection){
+			if(obj instanceof MoveableObject){
+				((MoveableObject)obj).move(delay);
+			}
+		}
+		
+	}
+	
+	
+	/**
+	 * Print all Game Objects
+	 * 
+	 */
+	public void printGameObject(){
+				
+		for(GameObject obj: gameObjectCollection){
+			if(obj instanceof Snakes){
+				System.out.println(obj.toString());
+			}
+			else if(obj instanceof Birds){
+				System.out.println(obj.toString());
+			}
+			else if(obj instanceof Money){
+				System.out.println(obj.toString());
+			}
+			else if(obj instanceof Money){
+				System.out.println(obj.toString());
+			}
+			else if(obj instanceof Food){
+				System.out.println(obj.toString());
+			}
+			else if(obj instanceof Walls){
+				System.out.println(obj.toString());
+			}
+			else if(obj instanceof Weasel){
+				System.out.println(obj.toString());
+			}
+			
+		}
+		
+	}
+	
+	
+	/**
+	 * Change in game state resulting from
+	 * Snake Head colliding with Snake BodySegment
+	 * Player loses a life and Game either ends or starts over
+	 * @param player
+	 */
+	public void GameCollisionBodySegment(){
+		
+		for(GameObject bodySeg : gameObjectCollection){
+			
+				if(bodySeg instanceof Snakes){
+					
+					gameUser.decrementLives();//player loses a life
+					if(gameUser.getLives() == 0){
+						
+						this.quitGame();
+						
+					}
+					else{//Begin Game with new layout
+						this.initLayout();
+					}break;
+				}
+		}
+		
+		this.notifyObservers();
+	}
+	
+	/**
+	 * Change in game state resulting from
+	 * Snake Head colliding with Money object
+	 * Money object is removed and Player score increase 
+	 * @param player
+	 */
+	public void GameCollisionMoney(){
+		
+		for(GameObject money : gameObjectCollection){
+			
+				if(money instanceof Money){
+					//if more than one money select one at random to remove
+					int value = ((Money) money).getValue();
+					System.out.println("\n"+ "Money value: " + value);
+					gameUser.setScore(value);
+					System.out.println("Player score: " + gameUser.getScore() + "\n");
+					gameObjectCollection.remove(money);
+					
+					break;
+				}
+				
+		}
+		this.notifyObservers();
+	}
+	
+	/**
+	 * Change in game state resulting from
+	 * Snake Head colliding with Bird
+	 * Player loses a life and Game either ends or starts over
+	 * @param player
+	 */
+	public void GameCollisionBird(){
+		for(GameObject bird : gameObjectCollection){
+			
+			if( bird instanceof Birds){
+				gameUser.decrementLives();
+				if(gameUser.getLives() == 0){
+					this.quitGame();
+				}
+				else{
+					initLayout();
+				}break;
+			}
+			
+		}
+		this.notifyObservers();
+	}
+	
+	/**
+	 * Respawn Bird after a period of time
+	 * @param time
+	 */
+	public void BirdRespawn(int time){
+		
+		if(birdCount == 0){
+			for(GameObject obj : gameObjectCollection){
+				if(obj instanceof Birds){
+					gameObjectCollection.remove(obj);
+					Birds newBird = makeBird();
+					newBird.translate(random.nextInt(500)+10,random.nextInt(500)+10);
+					gameObjectCollection.add(newBird);
+					
+				}
+				birdCount = 500;
+			}
+		}else{
+			birdCount--;
+		}
+	}
+	
+	/**
+	 * Change in game state resulting from
+	 * Snake Head colliding with Food object
+	 * Food object is removed and Snake BodySegment increases
+	 * New Food and one or more Money objects are generated into the GameWorld  
+	 * @param player
+	 */
+	public void GameCollisionFood(){
+		int growthPool = 0;
+		for(GameObject food : gameObjectCollection){
+			if(food instanceof Food){
+				growthPool = ((Food)food).getAmount();
+				System.out.println("\n" + "Amount of food: " + growthPool + "\n");
+				gameObjectCollection.remove(food);
+				for(GameObject snake : gameObjectCollection){
+					if(snake instanceof Snakes){
+						((Snakes)snake).setNewSegCount(growthPool);
+					}	
+				}
+				
+				int moneyObjectAmount = random.nextInt(3) + 1;
+				for(int k = 0; k < moneyObjectAmount; k++){
+					gameObjectCollection.add(new Money(random.nextInt(500)+10,random.nextInt(500)+10, Color.GREEN));
+					for(GameObject obj : gameObjectCollection){
+						if(obj instanceof Money){
+							((Money) obj).translate(random.nextInt(500)+10, random.nextInt(500)+10);
+						}
+					}
+				}	
+				gameObjectCollection.add(new Food(random.nextInt(500)+10, random.nextInt(500)+10, Color.ORANGE));
+				for(GameObject obj: gameObjectCollection){
+					if(obj instanceof Food){
+						((Food) obj).translate(random.nextInt(500)+10, random.nextInt(500)+10);
+					}
+				}
+			break;	
+			}
+			
+		}
+		this.notifyObservers();
+
+	}
+	
+	/**
+	 * Change in game state resulting from
+	 * Snake Head colliding with Wall
+	 * Player loses a life and Game either ends or starts over
+	 * @param player
+	 */
+	public void GameCollisionWall(){
+		
+		for(GameObject wall : gameObjectCollection){
+			if(wall instanceof Walls){
+				gameUser.decrementLives();
+				if(gameUser.getLives() == 0){
+					this.quitGame();
+				}
+				else{
+					initLayout();
+				}break;
+			}
+		}
+		
+		this.notifyObservers();
+		
+	}
+	
+	
+	/**
+	 * Weasel GameObject collision with Snake
+	 */
+	public void GameCollisionWeasel(){
+		for(GameObject obj : gameObjectCollection){
+			
+			if( obj instanceof Weasel){
+				gameUser.decrementLives();
+				if(gameUser.getLives() == 0){
+					this.quitGame();
+				}
+				else{
+					initLayout();
+				}break;
+			}
+			
+		}
+		this.notifyObservers();
+		
+		
+	}
+	
+	/**
+	 * Change strategy of all Weasel GameObjects
+	 */
+	public void ChangeWeaselStrategy(){
+		for(GameObject obj: gameObjectCollection){
+			if(obj instanceof Weasel){
+				if(((Weasel)obj).getStrategy() instanceof ChaseSnakeStrategy){
+					((Weasel)obj).setStrategy(new FollowHeadingStrategy((Weasel)obj));
+				}else{ ((Weasel)obj).setStrategy(new ChaseSnakeStrategy((Weasel)obj)); }
+			}
+		}
+		this.notifyObservers();
+	}
+	
+	/**
+	 * Increase the age of all Fixed GameObjects in the GameWorld
+	 */
+	public void ageGameObjects(){
+		for(GameObject fixed: gameObjectCollection){
+			if(fixed instanceof FixedObject){
+				((FixedObject) fixed).incrementAge();
+			}
+		}
+		
+	}
+	
+	/**
+	 * Tick Game Clock, also ages and moves gameObjects
+	 */
+	public void tickGameClock(int delay){
+		
+		this.moveGameObject(delay);
+		this.ageGameObjects();//work to do done
+		this.notifyObservers();
+	}
+	
+
+	/**
+	 * Display player statistics and current time
+	 * @param player
+	 * @param clock
+	 */
+	public void GameDisplay(){
+		
+		System.out.println("Player lives: " + gameUser.getLives() + "\n");
+		
+		System.out.println("Game Clock: " + gameClock.getCount() + "\n");
+		
+		System.out.println("Current Score: " + gameUser.getScore() + "\n");
+			
+		
+	}
+	
+	
+	/**
+	 * set gameplay mode to either play
+	 * or pause. Pause stops animation
+	 * and the looping background music
+	 */
+	public void setMode(boolean mode){
+		GameWorld.mode = mode;
+	}
+	
+	public boolean getMode(){
+		
+		return mode;
+	}
+	
+	
+	
+	
+	
+	
+	
+	/**
+	 * Quits game based on user confirmation
+	 * Also responsible for restarting the game
+	 */
+	public void quitGame(){
+		int result;
+		if(gameUser.getLives() == 0){
+			 result = JOptionPane.showConfirmDialog(null, "No more lives, you want to quit?", "Confrim exit", 
+					JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+		}else{
+			result = JOptionPane.showConfirmDialog(null, "Are you sure you want to quit?", "Confrim exit", 
+				JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+		}
+		
+		if(result == JOptionPane.YES_OPTION){ System.exit(0);}
+		else{ 
+			gameUser = new Player();
+			gameClock = new Clock();
+			this.initLayout();
+			this.notifyObservers();
+		}
+	}
+
+	/**
+	 * add observer objects
+	 */
+	public void addObserver(IObserver obs) {
+		RegObserver.add(obs);
+		
+	}
+
+	/**
+	 * update all observer objects
+	 */
+	public void notifyObservers() {
+		GameWorldProxy proxy =  new GameWorldProxy(this);
+		for(IObserver obj : RegObserver){
+				obj.update((IObservable)proxy, mode);
+			
+		}
+		
+	}
+
+
+
+	
+	
+}

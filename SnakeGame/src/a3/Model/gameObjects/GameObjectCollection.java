@@ -1,0 +1,77 @@
+package a3.Model.gameObjects;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+
+/**
+ * Iterator for GameObjects to be used in GameWorld
+ * @author Andreas
+ *
+ */
+public class  GameObjectCollection implements Iterable<GameObject>{ //IMPLEMENTS COLLECTION
+	
+	private ArrayList<GameObject> gameObjectArray;//Array to hold GameObjects
+	
+	public GameObjectCollection(){
+		this.gameObjectArray = new ArrayList<GameObject>();
+	}
+	
+	public int size(){
+		return this.gameObjectArray.size();
+	}
+	
+	public GameObject get(int index){
+		return this.gameObjectArray.get(index);
+	}
+	
+	public void add(GameObject gObject){
+		this.gameObjectArray.add(gObject);
+	}
+	
+	public void remove(GameObject gObject){
+		this.gameObjectArray.remove(gObject); 
+	}
+	
+	//Inner Class for iteration through ArrayList
+	private class GameArrayIterator implements Iterator<GameObject>{
+		
+		private int currentIndex;
+		
+		public GameArrayIterator(){
+			currentIndex = -1;
+		}
+		
+		public void remove(){
+			gameObjectArray.remove(currentIndex);
+		}
+		
+		public boolean hasNext() {
+			
+			if(gameObjectArray.size() <= 0){
+				return false;
+			}
+			if(currentIndex == gameObjectArray.size() - 1){
+				return false;
+			}
+			return true;
+		
+		}
+
+		
+		public GameObject next() {
+			
+			currentIndex++;
+			return(gameObjectArray.get(currentIndex));
+		
+		}
+		
+	}
+
+	
+	public Iterator<GameObject> iterator() {
+		return new GameArrayIterator();
+	}
+
+	
+
+}
