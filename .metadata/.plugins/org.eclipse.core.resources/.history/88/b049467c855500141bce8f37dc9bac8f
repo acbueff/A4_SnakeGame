@@ -1,0 +1,7 @@
+package a2.View;
+import a2.Model.Observable;
+public interface IObserver {
+	
+	public void update(Observable o, Object arg);
+	
+}

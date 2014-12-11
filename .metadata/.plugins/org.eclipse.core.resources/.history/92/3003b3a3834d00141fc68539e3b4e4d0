@@ -1,0 +1,7 @@
+package a1.Model.gameObjects;
+
+public interface IRemovable {
+	
+	public void RemoveObject();
+
+}

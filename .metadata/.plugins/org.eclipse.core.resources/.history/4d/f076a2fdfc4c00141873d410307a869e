@@ -1,0 +1,35 @@
+package a1.Controller;
+
+import java.awt.Color;
+
+import a1.gameObjects.Birds;
+import a1.gameObjects.BodySegment;
+import a1.gameObjects.Food;
+import a1.gameObjects.Head;
+import a1.gameObjects.Money;
+import a1.gameObjects.Snakes;
+import a1.gameObjects.Walls;
+
+/**
+ * Runs the game by constructing once instance of 
+ * the Game class
+ * @author Andreas
+ *
+ */
+public class Starter {
+	public static void main(String[] args){
+		//Test Security of classes
+				Food test = new Food(10,10,Color.WHITE);
+				System.out.println(test.getLocationX() + " " + test.getLocationY());
+				test.setPointLocation(0,0);
+				System.out.println(test.getLocationX() + " " + test.getLocationY());
+				
+		
+		
+		Game g = new Game();
+		
+		
+		
+	}
+
+}

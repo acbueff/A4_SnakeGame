@@ -1,0 +1,104 @@
+package a1;
+
+import java.util.Scanner;
+
+import a1.playerGameObjects.Player;
+
+/**
+ * Creates GameWorld and manages user commands
+ * and updates GameWorld
+ * @author Andreas
+ *
+ */
+public class Game {
+	private GameWorld gw;
+	private Player user;
+	private Clock clock;
+	private Scanner input;
+	/**
+	 * 
+	 */
+	public Game(){
+		gw = new GameWorld();
+		user = new Player();
+		clock = new Clock();
+		gw.initLayout();
+		play();
+	}
+	
+	/**
+	 * 
+	 */
+	private void play(){
+		//code here to accept and
+		//execute user commands
+		//that operate on the GameWorld
+		System.out.println("SNAKE GAME!");
+		while(true){
+			//String command = user.getCommand();
+			getCommand();
+			
+		}
+	}
+	
+	/**
+	 * 
+	 */
+	public void getCommand(){
+		input = new Scanner(System.in);
+		System.out.println("enter command: ");
+		
+		String command = input.nextLine();
+		
+			switch(command){
+			case "n":
+				gw.changeHeading("n");
+				break;
+			case "s":
+				gw.changeHeading("s");
+				break;
+			case "e":
+				gw.changeHeading("e");
+				break;
+			case "w":
+				gw.changeHeading("w");
+				break;
+			case "1":
+				gw.GameCollisionBodySegment(user);
+				break;
+			case "2":
+				gw.GameCollisionBird(user);
+				break;
+			case "3":
+				gw.GameCollisionMoney(user);
+				break;
+			case "4":
+				gw.GameCollisionFood(user);
+				break;
+			case "5":
+				gw.GameCollisionWall(user);
+				break;
+			case "t":
+				clock.tick();
+				gw.moveGameObject();
+				
+				break;
+			case "d":
+				
+				break;
+			case "m":
+				gw.printGameObject();
+				break;
+			case "q":
+				System.out.println("Quitting Game");
+				System.exit(0);
+				break;
+			default:
+				System.out.println("Only enter an allowable command");
+			}	
+		
+		
+		//input.close();
+	}
+	
+}

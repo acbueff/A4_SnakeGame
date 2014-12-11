@@ -1,0 +1,336 @@
+package a2.Model;
+
+import java.awt.Color;
+import java.util.ArrayList;
+import java.util.Random;
+
+import a2.Model.gameObjects.Birds;
+import a2.Model.gameObjects.FixedObject;
+import a2.Model.gameObjects.Food;
+import a2.Model.gameObjects.GameObject;
+import a2.Model.gameObjects.GameObjectCollection;
+import a2.Model.gameObjects.Money;
+import a2.Model.gameObjects.MoveableObject;
+import a2.Model.gameObjects.Snakes;
+import a2.Model.gameObjects.Walls;
+import a2.View.IObserver;
+import a2.View.MapView;
+import a2.View.ScoreView;
+
+
+
+/**
+ * Game World class holds collection of GameObject classes
+ * 
+ * @author Andreas
+ *
+ */
+public class GameWorld implements IObservable, IGameWorld{
+	private Random random = new Random();
+	private Player gameUser;
+	private Clock gameClock;
+	
+	private ArrayList<IObserver> RegObserver = new ArrayList<IObserver>();//Register observers
+	
+	//Initial game objects that exist during course of Game
+	private Snakes theSnake;
+	private Walls nWall;
+	private Walls eWall;
+	private Walls sWall;
+	private Walls wWall;
+	
+	//Container to store game objects
+	private GameObjectCollection gameObjectCollection;
+		
+	/**
+	 *Creates initial Game Layout
+	 *Provides values for all GameObjects
+	 * 
+	 */
+	public void initLayout(){
+		//Class holds all game objects in an ArrayList
+		this.gameObjectCollection = new GameObjectCollection();
+		this.gameUser = new Player();
+		this.gameClock = new Clock();
+		//Snakes is a singleton
+		this.theSnake = Snakes.getSnakes(0,5,random.nextInt(200)+400,random.nextInt(200)+400,Color.RED);
+		//Initializes theSnake with three BodySegment objects
+		this.theSnake.NewSnake();	
+		
+		this.nWall = new Walls(500, 997, 988, 6, Color.BLACK);//north wall
+		this.eWall = new Walls(997, 500, 6, 1000, Color.BLACK);//east wall
+		this.sWall = new Walls(500, 3, 988, 6, Color.BLACK);//south wall
+		this.wWall = new Walls(3, 500, 6, 1000, Color.BLACK);
+		
+		//Add Game objects for initial Game layout 
+		 this.gameObjectCollection.add(theSnake);
+		 this.gameObjectCollection.add(new Birds(random.nextInt(10)+1, random.nextInt(361), 10, random.nextInt(301), random.nextInt(1001), Color.CYAN));
+		 this.gameObjectCollection.add(new Money(random.nextInt(970)+10,random.nextInt(970)+10, Color.GREEN));
+		 this.gameObjectCollection.add(new Food(random.nextInt(970)+10, random.nextInt(970)+10, Color.ORANGE));
+		 this.gameObjectCollection.add(nWall);
+		 this.gameObjectCollection.add(eWall);
+		 this.gameObjectCollection.add(sWall);
+		 this.gameObjectCollection.add(wWall);
+		 
+		 
+		 
+		 
+	
+		 
+	}
+	
+	
+	public Clock getGameClock(){
+		return this.gameClock;
+	}
+	
+	public Player getGameUser(){
+		return this.gameUser;
+	}
+
+	/**
+	 * Passes new direction to Snakes object 
+	 * Snakes object faces new direction
+	 * @param dir new direction
+	 */
+	public void changeHeading(String dir){
+		for(int i = 0; i<gameObjectCollection.size(); i++){
+			if(gameObjectCollection.get(i) instanceof Snakes){
+				((Snakes)gameObjectCollection.get(i)).changeSnakeHeading(dir);
+				
+				
+			}
+		}
+	}
+	
+	/**
+	 * All objects able to move in GameWorld collection use move method
+	 */
+	public void moveGameObject(){
+		for(int i = 0; i < gameObjectCollection.size(); i++){
+			if(gameObjectCollection.get(i) instanceof MoveableObject){
+				((MoveableObject)gameObjectCollection.get(i)).move();
+			}
+		}
+	}
+	
+	/**
+	 * Print all Game Objects
+	 * 
+	 */
+	public void printGameObject(){
+				
+		for(GameObject obj: gameObjectCollection){
+			if(obj instanceof Snakes){
+				System.out.println(obj.toString());
+			}
+			else if(obj instanceof Birds){
+				System.out.println(obj.toString());
+			}
+			else if(obj instanceof Money){
+				System.out.println(obj.toString());
+			}
+			else if(obj instanceof Money){
+				System.out.println(obj.toString());
+			}
+			else if(obj instanceof Food){
+				System.out.println(obj.toString());
+			}
+			else if(obj instanceof Walls){
+				System.out.println(obj.toString());
+			}
+			
+		}
+		
+	}
+	
+	
+	/**
+	 * Change in game state resulting from
+	 * Snake Head colliding with Snake BodySegment
+	 * Player loses a life and Game either ends or starts over
+	 * @param player
+	 */
+	public void GameCollisionBodySegment(){
+		for(GameObject bodySeg : gameObjectCollection){
+			
+				if(bodySeg instanceof Snakes){
+					
+					gameUser.decrementLives();//player loses a life
+					if(gameUser.getLives() == 0){
+						
+						System.out.println("Game Over: no more lives");
+						System.exit(0);
+						
+					}
+					else{//Begin Game with new layout
+						this.initLayout();
+					}break;
+				}
+		}
+	}
+	
+	/**
+	 * Change in game state resulting from
+	 * Snake Head colliding with Money object
+	 * Money object is removed and Player score increase 
+	 * @param player
+	 */
+	public void GameCollisionMoney(){
+		
+		for(GameObject money : gameObjectCollection){
+			
+				if(money instanceof Money){
+					//if more than one money select one at random to remove
+					int value = ((Money) money).getValue();
+					System.out.println("\n"+ "Money value: " + value);
+					gameUser.setScore(value);
+					System.out.println("Player score: " + gameUser.getScore() + "\n");
+					gameObjectCollection.remove(money);
+					
+					break;
+				}
+				
+		}
+	}
+	
+	/**
+	 * Change in game state resulting from
+	 * Snake Head colliding with Bird
+	 * Player loses a life and Game either ends or starts over
+	 * @param player
+	 */
+	public void GameCollisionBird(){
+		for(GameObject bird : gameObjectCollection){
+			
+			if( bird instanceof Birds){
+				gameUser.decrementLives();
+				if(gameUser.getLives() == 0){
+					System.out.println("Game Over: no more lives");
+					System.exit(0);
+				}
+				else{
+					initLayout();
+				}break;
+			}
+			
+		}
+	}
+	
+	/**
+	 * Change in game state resulting from
+	 * Snake Head colliding with Food object
+	 * Food object is removed and Snake BodySegment increases
+	 * New Food and one or more Money objects are generated into the GameWorld  
+	 * @param player
+	 */
+	public void GameCollisionFood(){
+		int growthPool = 0;
+		for(GameObject food : gameObjectCollection){
+			if(food instanceof Food){
+				growthPool = ((Food)food).getAmount();
+				System.out.println("\n" + "Amount of food: " + growthPool + "\n");
+				gameObjectCollection.remove(food);
+				for(GameObject snake : gameObjectCollection){
+					if(snake instanceof Snakes){
+						((Snakes)snake).setNewSegCount(growthPool);
+					}	
+				}
+				
+				int moneyObjectAmount = random.nextInt(3) + 1;
+				for(int k = 0; k < moneyObjectAmount; k++){
+					gameObjectCollection.add(new Money(random.nextInt(970)+10,random.nextInt(970)+10, Color.GREEN));
+				}	
+				gameObjectCollection.add(new Food(random.nextInt(970)+10, random.nextInt(970)+10, Color.ORANGE));
+				
+			break;	
+			}
+			
+		}
+
+	}
+	
+	/**
+	 * Change in game state resulting from
+	 * Snake Head colliding with Wall
+	 * Player loses a life and Game either ends or starts over
+	 * @param player
+	 */
+	public void GameCollisionWall(){
+		
+		for(GameObject wall : gameObjectCollection){
+			if(wall instanceof Walls){
+				gameUser.decrementLives();
+				if(gameUser.getLives() == 0){
+					System.out.println("Game Over: no more lives");
+					System.exit(0);
+				}
+				else{
+					initLayout();
+				}break;
+			}
+		}
+		//work on this bit observers observables
+		this.notifyObservers();
+		
+	}
+	
+	/**
+	 * Increase the age of all Fixed GameObjects in the GameWorld
+	 */
+	public void ageGameObjects(){
+		for(GameObject fixed: this.gameObjectCollection){
+			if(fixed instanceof FixedObject){
+				((FixedObject) fixed).incrementAge();
+			}
+		}
+	}
+	
+	
+	public void tickGameClock(){
+		this.gameClock.tick();
+	}
+	
+
+	/**
+	 * Display player statistics and current time
+	 * @param player
+	 * @param clock
+	 */
+	public void GameDisplay(){
+		
+		System.out.println("Player lives: " + gameUser.getLives() + "\n");
+		
+		System.out.println("Game Clock: " + gameClock.getCount() + "\n");
+		
+		System.out.println("Current Score: " + gameUser.getScore() + "\n");
+			
+		
+	}
+
+	
+	public void addObserver(IObserver obs) {
+		this.RegObserver.add(obs);
+		
+	}
+
+	
+	public void notifyObservers() {
+		GameWorldProxy proxy =  new GameWorldProxy(this);
+		for(IObserver obj : this.RegObserver){
+				obj.update((IObservable)proxy, null);
+			
+		}
+		
+	}
+
+
+	
+	
+	
+
+	
+	
+	
+	
+}

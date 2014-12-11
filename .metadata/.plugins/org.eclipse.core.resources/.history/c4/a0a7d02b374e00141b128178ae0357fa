@@ -1,0 +1,45 @@
+package a1.Model.gameObjects;
+import java.awt.Color;
+import java.util.Random;
+
+
+public class Money extends FixedObject{
+	
+	Random random = new Random();
+	
+	//MAYBE FINAL WILL FIX VALUES
+	private final int value = random.nextInt(99) + 1;
+	
+	public Money(float posX, float posY, Color newColor){
+		super.setPointLocation(posX, posY);
+		this.setColor(newColor);
+		
+	}
+
+	@Override
+	public String toString() {
+		
+		String money ="Money: ";
+		String locX = "loc=" + Float.toString(this.getLocationX());
+		String locY = ","+Float.toString(this.getLocationY());
+		String color =" color=" + this.getColor().toString();
+		String value = " value=" + Integer.toString(this.getValue());
+		String age = " age=" + Integer.toString(this.getAge());
+		
+		
+		return money + locX + locY + color + value + age;
+	}
+
+	public int getValue() {
+		return value;
+	}
+
+	
+	
+	
+
+	
+	
+	
+
+}

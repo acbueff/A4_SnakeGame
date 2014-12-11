@@ -1,0 +1,27 @@
+package demoTest;
+
+import java.awt.Color;
+
+public class Tiger extends Mammal{
+
+
+	
+	 public Tiger(Color newColor){
+		
+	 }
+
+} 
+		 
+		 
+		 
+		 
+		 
+		 
+		 
+		 
+		 
+		 
+		 
+		 
+		 
+

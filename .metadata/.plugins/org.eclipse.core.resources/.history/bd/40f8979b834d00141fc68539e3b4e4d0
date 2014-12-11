@@ -1,0 +1,9 @@
+package a1.Model.gameObjects;
+
+import java.awt.Color;
+
+public interface IChangableColor {
+	
+	public Color getColor();
+
+}

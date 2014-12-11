@@ -9,6 +9,7 @@ import javax.swing.JOptionPane;
 
 import a4.Model.gameObjects.Birds;
 import a4.Model.gameObjects.ChaseSnakeStrategy;
+import a4.Model.gameObjects.EastWall;
 import a4.Model.gameObjects.FixedObject;
 import a4.Model.gameObjects.FollowHeadingStrategy;
 import a4.Model.gameObjects.Food;
@@ -18,8 +19,10 @@ import a4.Model.gameObjects.Money;
 import a4.Model.gameObjects.MoveableObject;
 import a4.Model.gameObjects.NorthWall;
 import a4.Model.gameObjects.Snakes;
+import a4.Model.gameObjects.SouthWall;
 import a4.Model.gameObjects.Walls;
 import a4.Model.gameObjects.Weasel;
+import a4.Model.gameObjects.WestWall;
 import a4.View.IObserver;
 
 
@@ -127,6 +130,18 @@ public class GameWorld implements IObservable, IGameWorld{
 		return new NorthWall(WLARGE/2,  WLARGE - (WSMALL/2), WLARGE - (WSMALL*2), WSMALL, Color.BLACK);
 	}
 	
+	public Walls makeSouthWall(){
+		return new SouthWall(WLARGE/2, WSMALL/2, WLARGE - (WSMALL*2) , WSMALL, Color.BLUE);
+	}
+	
+	public Walls makeEastWall(){
+		return new EastWall(WLARGE - (WSMALL/2), WLARGE/2, WSMALL, WLARGE, Color.RED);
+	}
+	
+	public Walls makeWestWall(){
+		return new WestWall(4, WLARGE/2, WSMALL, WLARGE, Color.GREEN);
+	}
+	
 	
 	/**
 	 *Creates initial Game Layout
@@ -162,6 +177,9 @@ public class GameWorld implements IObservable, IGameWorld{
 		Walls sWall = makeWall("s");
 		Walls wWall = makeWall("w");
 		NorthWall northWall = (NorthWall) makeNorthWall();
+		SouthWall southWall = (SouthWall) makeSouthWall();
+		EastWall eastWall = (EastWall) makeEastWall();
+		WestWall westWall = (WestWall) makeWestWall();
 		//Add Game objects for initial Game layout 
 		 gameObjectCollection.add(theSnake);
 		 gameObjectCollection.add(theBird);
@@ -171,9 +189,12 @@ public class GameWorld implements IObservable, IGameWorld{
 		 gameObjectCollection.add(secondWeasel);
 		 //gameObjectCollection.add(nWall);
 		 gameObjectCollection.add(northWall);
-		 gameObjectCollection.add(eWall);
-		 gameObjectCollection.add(sWall);
-		 gameObjectCollection.add(wWall);
+		 gameObjectCollection.add(southWall);
+		 gameObjectCollection.add(eastWall);
+		 gameObjectCollection.add(westWall);
+		 //gameObjectCollection.add(eWall);
+		 //gameObjectCollection.add(sWall);
+		 //gameObjectCollection.add(wWall);
 		 
 		 
 		 this.notifyObservers();

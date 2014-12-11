@@ -1,0 +1,23 @@
+package demoTest;
+
+import java.awt.Color;
+
+import a1.Model.Point;
+
+public class Animal {
+	
+	private Color color;
+	
+	
+	
+	
+	public void setColor(Color  newColor){
+		
+		this.color = newColor;
+	} 
+	
+	public Color getColor(){
+		return this.color;
+	}
+
+}

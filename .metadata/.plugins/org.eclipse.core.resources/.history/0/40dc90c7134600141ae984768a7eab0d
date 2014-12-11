@@ -1,0 +1,49 @@
+package a1.gameObjects;
+import java.awt.Color;
+
+
+public class Head extends MoveableObject implements ISteerable {
+
+	@Override
+	public void move() {
+		// TODO Auto-generated method stub
+
+	}
+
+	
+
+
+	@Override
+	public String toString() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+
+	@Override
+	public void changeHeading(String dir) {
+		
+		switch(dir){
+		case "n":
+			this.setHeading(0);
+			break;
+		case "e":
+			this.setHeading(90);
+			break;
+		case "s":
+			this.setHeading(180);
+			break;
+		case "w":
+			this.setHeading(270);
+			break;
+		default:
+		
+			System.out.println("1000years rick and morty");
+		}
+		
+	}
+
+	
+
+}

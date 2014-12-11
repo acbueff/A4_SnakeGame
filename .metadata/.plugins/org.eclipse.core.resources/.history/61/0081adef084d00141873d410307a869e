@@ -1,0 +1,31 @@
+package demoTest;
+
+import java.awt.Color;
+
+import a1.Model.Point;
+
+public class Animal {
+	
+	private Color color;
+	
+	public static void  initialize(int x, int y, boolean isMoveable){
+		if(!isMoveable){
+			final Point location = new Point(x,y);
+		}
+		else{
+			private Point location = new Point(x,y);
+		}
+	}
+	
+	
+	
+	public void setColor(Color  newColor){
+		
+		this.color = newColor;
+	} 
+	
+	public Color getColor(){
+		return this.color;
+	}
+
+}

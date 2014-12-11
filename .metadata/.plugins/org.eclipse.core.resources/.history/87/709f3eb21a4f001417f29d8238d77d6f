@@ -1,0 +1,17 @@
+package a1.Controller;
+
+/**
+ * Runs the game by constructing once instance of 
+ * the Game class
+ * @author Andreas
+ *
+ */
+public class Starter {
+	public static void main(String[] args){	
+		
+		Game g = new Game();
+
+		
+	}
+
+}

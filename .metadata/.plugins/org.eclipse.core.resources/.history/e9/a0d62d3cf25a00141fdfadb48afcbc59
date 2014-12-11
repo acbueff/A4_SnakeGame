@@ -1,0 +1,258 @@
+package a2.Model;
+
+import java.awt.Color;
+
+import a2.Model.gameObjects.Birds;
+import a2.Model.gameObjects.FixedObject;
+import a2.Model.gameObjects.Food;
+import a2.Model.gameObjects.GameObject;
+import a2.Model.gameObjects.Money;
+import a2.Model.gameObjects.MoveableObject;
+import a2.Model.gameObjects.Snakes;
+import a2.Model.gameObjects.Walls;
+
+public class GameWorldProxy implements IGameWorld{
+	//code here to accept and hold a GameWorld, provide implementations
+	//of all the public methods in a GameWorld, forward allowed
+	//calls to the actual GameWorld, and reject calls to methods
+	//which the outside(Views) should not be able to access in the GameWorld
+	
+	private GameWorld realGameWorld;
+	
+	public GameWorldProxy(GameWorld gw){ realGameWorld = gw;}
+	
+	public Clock getGameClock(){
+		return realGameWorld.getGameClock();
+	}
+	
+	public Player getGameUser(){
+		return realGameWorld.getGameUser();
+	}
+	
+	
+	
+	
+	/**
+	 * Passes new direction to Snakes object 
+	 * Snakes object faces new direction
+	 * @param dir new direction
+	 */
+	public void changeHeading(String dir){
+		for(int i = 0; i<gw.gameObjectCollection.size(); i++){
+			if(gameObjectCollection.get(i) instanceof Snakes){
+				((Snakes)gameObjectCollection.get(i)).changeSnakeHeading(dir);
+				
+				
+			}
+		}
+	}
+	
+	/**
+	 * All objects able to move in GameWorld collection use move method
+	 */
+	public void moveGameObject(){
+		for(int i = 0; i < gameObjectCollection.size(); i++){
+			if(gameObjectCollection.get(i) instanceof MoveableObject){
+				((MoveableObject)gameObjectCollection.get(i)).move();
+			}
+		}
+	}
+	
+	/**
+	 * Print all Game Objects
+	 * 
+	 */
+	public void printGameObject(){
+				
+		for(GameObject obj: gameObjectCollection){
+			if(obj instanceof Snakes){
+				System.out.println(obj.toString());
+			}
+			else if(obj instanceof Birds){
+				System.out.println(obj.toString());
+			}
+			else if(obj instanceof Money){
+				System.out.println(obj.toString());
+			}
+			else if(obj instanceof Money){
+				System.out.println(obj.toString());
+			}
+			else if(obj instanceof Food){
+				System.out.println(obj.toString());
+			}
+			else if(obj instanceof Walls){
+				System.out.println(obj.toString());
+			}
+			
+		}
+		
+	}
+	
+	
+	/**
+	 * Change in game state resulting from
+	 * Snake Head colliding with Snake BodySegment
+	 * Player loses a life and Game either ends or starts over
+	 * @param player
+	 */
+	public void GameCollisionBodySegment(){
+		for(GameObject bodySeg : gameObjectCollection){
+			
+				if(bodySeg instanceof Snakes){
+					
+					player.decrementLives();//player loses a life
+					if(player.getLives() == 0){
+						
+						System.out.println("Game Over: no more lives");
+						System.exit(0);
+						
+					}
+					else{//Begin Game with new layout
+						this.initLayout();
+					}break;
+				}
+		}
+	}
+	
+	/**
+	 * Change in game state resulting from
+	 * Snake Head colliding with Money object
+	 * Money object is removed and Player score increase 
+	 * @param player
+	 */
+	public void GameCollisionMoney(){
+		
+		for(GameObject money : gameObjectCollection){
+			
+				if(money instanceof Money){
+					//if more than one money select one at random to remove
+					int value = ((Money) money).getValue();
+					System.out.println("\n"+ "Money value: " + value);
+					player.setScore(value);
+					System.out.println("Player score: " + player.getScore() + "\n");
+					gameObjectCollection.remove(money);
+					
+					break;
+				}
+				
+		}
+	}
+	
+	/**
+	 * Change in game state resulting from
+	 * Snake Head colliding with Bird
+	 * Player loses a life and Game either ends or starts over
+	 * @param player
+	 */
+	public void GameCollisionBird(){
+		for(GameObject bird : gameObjectCollection){
+			
+			if( bird instanceof Birds){
+				player.decrementLives();
+				if(player.getLives() == 0){
+					System.out.println("Game Over: no more lives");
+					System.exit(0);
+				}
+				else{
+					initLayout();
+				}break;
+			}
+			
+		}
+	}
+	
+	/**
+	 * Change in game state resulting from
+	 * Snake Head colliding with Food object
+	 * Food object is removed and Snake BodySegment increases
+	 * New Food and one or more Money objects are generated into the GameWorld  
+	 * @param player
+	 */
+	public void GameCollisionFood(){
+		int growthPool = 0;
+		for(GameObject food : gameObjectCollection){
+			if(food instanceof Food){
+				growthPool = ((Food)food).getAmount();
+				System.out.println("\n" + "Amount of food: " + growthPool + "\n");
+				gameObjectCollection.remove(food);
+				for(GameObject snake : gameObjectCollection){
+					if(snake instanceof Snakes){
+						((Snakes)snake).setNewSegCount(growthPool);
+					}	
+				}
+				
+				int moneyObjectAmount = random.nextInt(3) + 1;
+				for(int k = 0; k < moneyObjectAmount; k++){
+					gameObjectCollection.add(new Money(random.nextInt(970)+10,random.nextInt(970)+10, Color.GREEN));
+				}	
+				gameObjectCollection.add(new Food(random.nextInt(970)+10, random.nextInt(970)+10, Color.ORANGE));
+				
+			break;	
+			}
+			
+		}
+
+	}
+	
+	/**
+	 * Change in game state resulting from
+	 * Snake Head colliding with Wall
+	 * Player loses a life and Game either ends or starts over
+	 * @param player
+	 */
+	public void GameCollisionWall(){
+		
+		for(GameObject wall : gameObjectCollection){
+			if(wall instanceof Walls){
+				player.decrementLives();
+				if(player.getLives() == 0){
+					System.out.println("Game Over: no more lives");
+					System.exit(0);
+				}
+				else{
+					initLayout();
+				}break;
+			}
+		}
+		this.notifyObservers();
+		
+	}
+	
+	/**
+	 * Increase the age of all Fixed GameObjects in the GameWorld
+	 */
+	public void ageGameObjects(){
+		for(GameObject fixed: this.gameObjectCollection){
+			if(fixed instanceof FixedObject){
+				((FixedObject) fixed).incrementAge();
+			}
+		}
+	}
+	
+	
+	
+	
+
+	/**
+	 * Display player statistics and current time
+	 * @param player
+	 * @param clock
+	 */
+	public void GameDisplay(){
+		
+		System.out.println("Player lives: " + realGameWorld.getGameUser().getLives() + "\n");
+		
+		System.out.println("Game Clock: " + realGameWorld.getGameClock().getCount() + "\n");
+		
+		System.out.println("Current Score: " + realGameWorld.getGameUser().getScore() + "\n");
+			
+		
+	}
+
+	@Override
+	public void tickGameClock(){
+		realGameWorld.getGameClock().tick();
+	}
+
+	
+}

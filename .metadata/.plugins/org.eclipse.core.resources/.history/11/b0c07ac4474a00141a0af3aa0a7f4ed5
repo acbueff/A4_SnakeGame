@@ -1,0 +1,11 @@
+package demoTest;
+
+import java.awt.Color;
+
+public abstract class Animal {
+	
+	int x;
+	
+	 abstract void setColor(Color newColor);
+
+}

@@ -1,0 +1,27 @@
+package a1;
+
+public class Clock {
+	private int count;
+	
+	public Clock(){
+		setCount(0);
+	}
+	
+	public void tick(){
+		setCount(getCount() + 1);
+	}
+	
+	public void reset(){
+		Clock.setCount(0);
+	}
+
+	public int getCount() {
+		return count;
+	}
+
+	public void setCount(int count) {
+		Clock.count = count;
+	}
+	
+}
+

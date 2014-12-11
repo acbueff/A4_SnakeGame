@@ -1,0 +1,150 @@
+package a1.gameObjects;
+import java.awt.Color;
+import java.util.ArrayList;
+
+import a1.Point;
+
+/**
+ * Snake Object for Game
+ * Will consist of a Head object and Body Segments which can grow
+ * during course of the game.
+ * @author Andreas
+ *
+ */
+public class Snakes extends MoveableObject {
+	
+	private Head snakeHead;
+	private int startSize;
+	private ArrayList<Integer> bodySegHeading;
+	private ArrayList<BodySegment> bodySegPos;
+	private Point oldLocation;
+	private int newSegCount;
+	
+	
+	private static Snakes theSnake;//single global reference to the snake
+	
+	private Snakes(int heading, int speed, float posX, float posY, Color newColor){
+		this.startSize = 3;//bodySeg amount
+		this.snakeHead = new Head(heading,speed,posX,posY,newColor);
+		this.bodySegPos = new ArrayList<BodySegment>();
+		
+		this.setNewSegCount(this.startSize);//reference for getting heading for individual bodySegments
+		
+		//fill snake with three body segments at initial layout
+		for(int n = 0; n < startSize; n++){
+		 this.move();
+		}	
+	}
+	
+	
+	
+	/**
+	 * 
+	 * @param amount
+	 */
+	public void addBodySegment(int pos, Point oldLocation){
+		
+		this.bodySegPos.add(pos, new BodySegment(this.snakeHead.getHeading(),this.snakeHead.getSpeed(),oldLocation.getX(),oldLocation.getY(),this.snakeHead.getColor()));
+		
+	}
+	/**
+	 * 
+	 */
+	public void getCurrentSegHeadings(){
+		this.bodySegHeading = new ArrayList<Integer>();
+		for(int j = 0; j < this.bodySegPos.size();j++ ){
+			this.bodySegHeading.add(j,((BodySegment)bodySegPos.get(j)).getHeading());
+		}
+		
+	}
+	
+	public void clearCurrentSegHeadings(){
+		this.bodySegHeading.clear();
+	}
+
+	
+	
+	
+	//provide access to the snake, creating it if necessary
+	public static Snakes getSnakes(int heading, int speed, float posX, float posY, Color newColor){
+		if(theSnake == null){
+			theSnake = new Snakes(heading, speed, posX, posY, newColor);
+		}
+		return theSnake;
+	}
+	
+	/**
+	 * 
+	 */
+	
+	public void move() {
+		// TODO Auto-generated method stub
+	
+		oldLocation = new Point(this.snakeHead.getLocationX(),this.snakeHead.getLocationY());
+		
+		this.snakeHead.move();
+		this.getCurrentSegHeadings();
+		if(this.getNewSegCount() != 0){
+			this.addBodySegment(0,oldLocation);
+			this.decrementNewSegCount();
+			
+		}
+		else{
+			//this.getCurrentSegHeadings();
+			((BodySegment)this.bodySegPos.get(0)).move();
+			((BodySegment)this.bodySegPos.get(0)).setHeading(this.snakeHead.getHeading());
+			
+			
+			for(int i = 1; i < this.bodySegPos.size(); i++){
+				//moved segheading after move
+				System.out.println("check");
+				
+				((BodySegment)this.bodySegPos.get(i)).move();
+				((BodySegment)this.bodySegPos.get(i)).setHeading(this.bodySegHeading.get(i-1));
+			}
+			this.clearCurrentSegHeadings();
+			
+		}
+		
+		
+		
+	}
+	
+	/**
+	 * 
+	 * @param dir
+	 */
+	public void changeSnakeHeading(String dir){
+		this.snakeHead.changeHeading(dir);
+	}
+
+	@Override
+	public String toString() {
+		String snakeHead = this.snakeHead.toString() +"\n";
+		String bodySeg = "";
+		for(int s = 0; s < this.bodySegPos.size(); s++){
+			bodySeg = bodySeg + ((BodySegment)bodySegPos.get(s)).toString() + "\n";
+		}
+		
+		return snakeHead + bodySeg;
+	}
+
+	public int getNewSegCount() {
+		return newSegCount;
+	}
+
+	public void setNewSegCount(int newSegCount) {
+		this.newSegCount = newSegCount;
+	}
+	
+	public void decrementNewSegCount(){
+		this.newSegCount = this.newSegCount -1;
+	}
+
+	
+
+	
+
+	
+
+}

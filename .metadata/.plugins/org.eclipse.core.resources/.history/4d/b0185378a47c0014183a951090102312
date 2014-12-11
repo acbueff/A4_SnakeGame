@@ -1,0 +1,7 @@
+package a4.Model.gameObjects;
+
+import java.lang.Object.a4.Model.gameObjects.Walls;
+
+public class NorthWall extends Walls {
+
+}

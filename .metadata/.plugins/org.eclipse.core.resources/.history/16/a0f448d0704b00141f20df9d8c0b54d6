@@ -1,0 +1,57 @@
+package a1.gameObjects;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+
+public class GameObjectCollection implements Iterable{
+	
+	private ArrayList<GameObject> gameObjectArray;
+	
+	public GameObjectCollection(){
+		this.gameObjectArray = new ArrayList<GameObject>();
+	}
+	
+	public void add(GameObject gObject){
+		this.gameObjectArray.add(gObject);
+	}
+	
+	private class GameArrayIterator implements Iterator{
+		
+		private int currentIndex;
+		
+		public GameArrayIterator(){
+			currentIndex = -1;
+		}
+
+		@Override
+		public boolean hasNext() {
+			// TODO Auto-generated method stub
+			if(gameObjectArray.size() <= 0){
+				return false;
+			}
+			if(currentIndex == gameObjectArray.size() - 1){
+				return false;
+			}
+			return true;
+		
+		}
+
+		@Override
+		public Object next() {
+			// TODO Auto-generated method stub
+			currentIndex++;
+			return(gameObjectArray.get(currentIndex));
+		
+		}
+		
+	}
+
+	@Override
+	public Iterator iterator() {
+		// TODO Auto-generated method stub
+		return new GameArrayIterator();
+	}
+
+	
+
+}

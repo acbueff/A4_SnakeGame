@@ -1,0 +1,54 @@
+package a1.Model.gameObjects;
+import java.awt.Color;
+
+import a1.Model.Point;
+
+
+public class BodySegment extends MoveableObject {
+	
+	
+	
+	public BodySegment(int heading, int speed, float posX, float posY, Color newColor){
+		this.setHeading(heading);
+		this.setSpeed(speed);
+		this.setPointLocation(posX, posY);
+		super.setColor(newColor);
+	}
+
+	@Override
+	public void move() {
+		
+		float angle = (90 - this.getHeading());
+		
+		float deltaX = (int) (Math.cos(Math.toRadians(angle))*this.getSpeed());
+		float deltaY = (int) (Math.sin(Math.toRadians(angle))*this.getSpeed());
+		
+		float newX = this.getLocationX() + deltaX;
+		float newY = this.getLocationY() + deltaY;
+		
+		
+		this.setPointLocation(newX, newY);
+		
+	}
+
+	@Override
+	public String toString() {
+		String bodySegment ="BodySegment: ";
+		String locX = "loc=" + Float.toString(this.getLocationX());
+		String locY = ","+Float.toString(this.getLocationY());
+		String color =" color=" + this.getColor().toString();
+		String speed = " speed=" + Integer.toString(this.getSpeed());
+		String heading = " heading=" + Integer.toString(this.getHeading());
+		
+		
+		return bodySegment + locX + locY + color + speed + heading;
+	}
+
+	
+	public void setColor(Color newColor){
+		newColor = this.getColor();
+		
+	}
+	
+
+}

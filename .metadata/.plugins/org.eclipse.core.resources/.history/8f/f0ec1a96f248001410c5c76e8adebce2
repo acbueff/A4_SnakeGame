@@ -1,0 +1,95 @@
+package a1.gameObjects;
+import java.awt.Color;
+
+import a1.Point;
+
+
+public class Birds extends MoveableObject {
+	
+	private int size;
+	
+	
+	public Birds(){
+		this.size = 5;
+		this.setHeading(0);
+		this.setSpeed(5);
+		this.setPointLocation(0, 0);
+		super.setColor(Color.BLACK);
+	}
+	/**
+	 * Bird constructor with user input
+	 * @param size
+	 * @param heading
+	 * @param speed
+	 * @param posX
+	 * @param posY
+	 */
+	public Birds(int size, int heading, int speed, float posX, float posY, Color newColor ){
+		this.size = size;
+		this.setHeading(heading);
+		this.setSpeed(speed);
+		//super.setLocation(posX,posY);
+		this.setPointLocation(posX, posY);
+		super.setColor(newColor);
+		
+	}
+	
+	public void setColor(Color newColor){
+	
+	}
+	
+	public int getSize(){
+		return size;
+	}
+	
+	public void setSize(int newSize){
+		this.size = newSize;
+	}
+
+	@Override
+	public void move() {
+		float angle = (90 - this.getHeading());
+		//float deltaX = this.getLocationX()+(int) (Math.cos(angle)*this.getSpeed());
+		//float deltaY = this.getLocationY()+(int) (Math.sin(angle)*this.getSpeed());
+		
+		float deltaX = (int) (Math.cos(Math.toRadians(angle))*this.getSpeed());
+		float deltaY = (int) (Math.sin(Math.toRadians(angle))*this.getSpeed());
+		System.out.println("Change in X: " + deltaX);
+		System.out.println("Change in Y : " + deltaY);
+		System.out.println("oldLocation value of X: " + this.getLocationX());
+		System.out.println("oldLocation value of Y: " + this.getLocationY());
+		float newX = this.getLocationX() + deltaX;
+		float newY = this.getLocationY() + deltaY;
+		System.out.println("value of X plus deltaX: " + newX);
+		System.out.println("value of Y plus deltaY: " + newY);
+		
+		//issue in getLocation, or in Point
+		Point newLocation = new Point(newX, newY);
+		System.out.println("newLocation value of X: " + newLocation.getX());
+		System.out.println("newLocation value of Y: " + newLocation.getY());
+		this.setPointLocation(newLocation);
+		
+		
+	}
+
+	@Override
+	public String toString() {
+		// TODO Auto-generated method stub
+		String bird ="Bird: ";
+		String locX = "loc=" + Float.toString(this.getLocationX());
+		String locY = ","+Float.toString(this.getLocationY());
+		String color =" color=" + this.getColor().toString();
+		String speed = " speed=" + Integer.toString(this.getSpeed());
+		String heading = " heading=" + Integer.toString(this.getHeading());
+		
+		
+		return bird + locX + locY + color + speed + heading;
+	}
+	
+	
+
+
+
+	
+
+}

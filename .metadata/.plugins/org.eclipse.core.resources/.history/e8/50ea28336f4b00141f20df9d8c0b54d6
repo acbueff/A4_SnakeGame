@@ -1,0 +1,13 @@
+package a1.gameObjects;
+
+import java.util.Iterator;
+
+public class GameObjectCollection implements Iterable{
+
+	@Override
+	public Iterator iterator() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+}

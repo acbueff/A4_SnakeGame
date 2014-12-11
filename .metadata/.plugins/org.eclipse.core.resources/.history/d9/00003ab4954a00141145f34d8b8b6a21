@@ -1,0 +1,25 @@
+package demoTest;
+
+import java.awt.Color;
+
+public class Animal {
+	
+	private Color color;
+	
+	public Animal(Color setColor){
+		this.setColor(setColor);
+	}
+	
+	
+	private void setColor(Color  newColor){
+		
+		this.color = newColor;
+		
+	
+	} 
+	
+	public Color getColor(){
+		return this.color;
+	}
+
+}

@@ -1,0 +1,1 @@
+INDEX VERSION 1.126+C:\Users\Andreas\Google Drive\Fall 14 Sac\csc133\csc133 Projects\.metadata\.plugins\org.eclipse.jdt.core

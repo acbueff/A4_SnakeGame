@@ -2,6 +2,7 @@ package a4.Model.gameObjects;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.util.ArrayList;
 
 import a4.Model.Point;
@@ -24,6 +25,10 @@ public class Walls extends FixedObject{
 		this.setHeight(height);
 		super.setColor(newColor);
 		
+	}
+	
+	public Rectangle getBounds(){
+		return new Rectangle((int) this.getLocationX(),(int)this.getLocationY(),this.getWidth(),this.getHeight());
 	}
 	
 	//Color cannot be changed after instantiation

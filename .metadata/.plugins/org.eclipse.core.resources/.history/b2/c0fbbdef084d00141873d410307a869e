@@ -1,0 +1,28 @@
+package demoTest;
+import java.awt.Color;
+
+import a1.*;
+import a1.gameObjects.Birds;
+import a1.gameObjects.Food;
+import a1.gameObjects.Snakes;
+
+public class AnimalTest {
+
+	public static void main(String[] args) {
+	Tiger tiger = new Tiger(Color.RED);
+	
+	
+	System.out.println(tiger.getColor());
+	
+	tiger.setColor(Color.BLUE);
+	tiger.setColor(Color.BLUE);
+	
+	
+	System.out.println(tiger.getColor());
+	
+			
+		
+
+	}
+
+}

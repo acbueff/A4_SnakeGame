@@ -1,0 +1,276 @@
+package a1;
+
+import java.awt.Color;
+import java.util.ArrayList;
+import java.util.Random;
+
+import a1.gameObjects.Birds;
+import a1.gameObjects.BodySegment;
+import a1.gameObjects.FixedObject;
+import a1.gameObjects.Food;
+import a1.gameObjects.GameObject;
+import a1.gameObjects.IRemovable;
+import a1.gameObjects.ISteerable;
+import a1.gameObjects.Money;
+import a1.gameObjects.MoveableObject;
+import a1.gameObjects.Snakes;
+import a1.gameObjects.Walls;
+import a1.playerGameObjects.Player;
+
+/**
+ * 
+ * @author Andreas
+ *
+ */
+public class GameWorld {
+	private Random random = new Random();
+	
+	//Initial game objects
+	private Snakes theSnake;
+	private Birds theBird;
+	private Money theMoney;
+	private Food theFood;
+	private Walls nWall;
+	private Walls eWall;
+	private Walls sWall;
+	private Walls wWall;
+	//Container to store game objects
+	private ArrayList<GameObject> gameObjectArray;
+	
+	
+	/**
+	 * 
+	 */
+	public void initLayout(){
+		//code here to create the initial game objects/layout
+		//initial game objects/layout
+		//MovableObjects
+		
+		int choice = random.nextInt(4);//random direction
+		this.theSnake = Snakes.getSnakes(0,5,random.nextInt(200)+400,random.nextInt(200)+400,Color.RED);//random values later
+		//Randomize values of snake
+		
+		
+		if(choice == 0){
+			this.theSnake.changeSnakeHeading("n");
+		}
+		else if(choice == 1){
+			this.theSnake.changeSnakeHeading("e");
+		}
+		else if(choice == 2){
+			this.theSnake.changeSnakeHeading("s");
+		}
+		else if(choice == 3){
+			this.theSnake.changeSnakeHeading("w");
+		}
+		
+		
+				
+		this.theBird = new Birds(random.nextInt(10)+1, random.nextInt(361), 10, random.nextInt(301), random.nextInt(1001), Color.CYAN);//RANDOM VALUES LATER
+		this.theMoney = new Money(random.nextInt(970)+10,random.nextInt(970)+10, Color.GREEN);//RANDOM VALUES LATER
+		this.theFood = new Food(random.nextInt(970)+10, random.nextInt(970)+10, Color.ORANGE);
+		this.nWall = new Walls(500, 997, 988, 6, Color.BLACK);//north wall
+		this.eWall = new Walls(997, 500, 6, 1000, Color.BLACK);//east wall
+		this.sWall = new Walls(500, 3, 988, 6, Color.BLACK);//south wall
+		this.wWall = new Walls(3, 500, 6, 1000, Color.BLACK);
+		
+		//Add Game objects for initial Game layout
+		 this.gameObjectArray = new ArrayList<GameObject>();
+		 this.gameObjectArray.add(theSnake);
+		 this.gameObjectArray.add(theBird);
+		 this.gameObjectArray.add(theMoney);
+		 this.gameObjectArray.add(theFood);
+		 this.gameObjectArray.add(nWall);
+		 this.gameObjectArray.add(eWall);
+		 this.gameObjectArray.add(sWall);
+		 this.gameObjectArray.add(wWall);
+		 
+	}
+	//additional methods here to
+	//manipulate world objects and
+	//related game state data
+	public Snakes getTheSnake(){
+		return this.theSnake;
+	}
+	
+	public Birds getTheBird(){
+		return this.theBird;
+	}
+	
+	
+	public void changeHeading(String dir){
+		for(int i = 0; i<gameObjectArray.size(); i++){
+			if(gameObjectArray.get(i) instanceof Snakes){
+				((Snakes)gameObjectArray.get(i)).changeSnakeHeading(dir);
+				
+				
+			}
+		}
+	}
+	
+	/**
+	 * Change heading of SnakeObject by changing snakeHead heading
+	 */
+	public void moveGameObject(){
+		for(int i = 0; i < gameObjectArray.size(); i++){
+			if(gameObjectArray.get(i) instanceof MoveableObject){
+				((MoveableObject)gameObjectArray.get(i)).move();
+			}
+		}
+	}
+	
+	/**
+	 * Print all Game Objects
+	 */
+	public void printGameObject(){
+		for(GameObject snake: gameObjectArray){
+			if(snake instanceof Snakes){
+				System.out.println(snake.toString());
+			}
+			
+		}
+		for(GameObject bird: gameObjectArray){
+			if(bird instanceof Birds){
+				System.out.println(bird.toString());
+			}
+			
+		}
+		for(GameObject money: gameObjectArray){
+			if(money instanceof Money){
+				System.out.println(money.toString());
+			}
+			
+		}
+		for(GameObject food: gameObjectArray){
+			if(food instanceof Food){
+				System.out.println(food.toString());
+			}
+			
+		}
+		for(GameObject wall: gameObjectArray){
+			if(wall instanceof Walls){
+				System.out.println(wall.toString());
+			}
+			
+		}
+		
+	}
+	
+	/**
+	 * 
+	 */
+	
+	public void GameCollisionBodySegment(Player player){
+		for(GameObject bodySeg : gameObjectArray){
+			
+				if(bodySeg instanceof BodySegment){
+					
+					player.decrementLives();
+					if(player.getLives() == 0){
+						
+						System.out.println("Game Over: no more lives");
+						System.exit(0);
+						
+					}
+					else{
+						initLayout();
+					}
+				}
+		}
+	}
+	
+	//ISSUES WITH ARRAYLIST
+	public void GameCollisionMoney(Player player){
+		
+		for(GameObject money : gameObjectArray){
+			
+				if(money instanceof Money){
+					//if more than one money select one at random to remove
+					int value = ((Money) money).getValue();
+					System.out.println("Money value: " + value);
+					player.setScore(value);//fix
+					System.out.println("Player score: " + player.getScore());
+					gameObjectArray.remove(this);
+					
+
+				}
+		}
+	}
+	
+	
+	public void GameCollisionBird(Player player){
+		for(GameObject bird : gameObjectArray){
+			
+			if( bird instanceof Birds){
+				System.out.println("Instance of Bird detected");
+				player.decrementLives();
+				if(player.getLives() == 0){
+					System.out.println("Game Over: no more lives");
+					System.exit(0);
+				}
+				else{
+					initLayout();
+				}
+			}
+		}
+	}
+	
+	//ISSUES WITH CASTING SNAKES
+	public void GameCollisionFood(Player player){
+
+		for(GameObject food : gameObjectArray){
+			int growthPool = ((Food)food).getAmount();
+			gameObjectArray.remove(food);
+			for(int w = 0; w < gameObjectArray.size(); w++){
+				if(gameObjectArray.get(w) instanceof Snakes){
+					((Snakes)gameObjectArray.get(w)).setNewSegCount(growthPool);
+				}
+			}
+			//Removal of food adds 1 or more Money Objects to game as well as more food
+			int moneyObjectAmount = random.nextInt(3) + 1;
+			for(int k = 0; k < moneyObjectAmount; k++){
+				gameObjectArray.add(new Money(random.nextInt(970)+10,random.nextInt(970)+10, Color.GREEN));
+			}	
+			gameObjectArray.add(new Food(random.nextInt(970)+10, random.nextInt(970)+10, Color.ORANGE));
+		}
+	}
+	
+	public void GameCollisionWall(Player player){
+		player.decrementLives();
+		if(player.getLives() == 0){
+			System.out.println("Game Over: no more lives");
+			System.exit(0);
+		}
+		else{
+			initLayout();
+		}
+		
+	}
+	
+	public void AgeGameObjects(){
+		for(GameObject fixed: this.gameObjectArray){
+			if(fixed instanceof FixedObject){
+				((FixedObject) fixed).incrementAge();
+			}
+		}
+	}
+	
+	public void GameDisplay(Player player, Clock clock){
+		
+		System.out.println("Player lives: " + player.getLives() + "\n");
+		
+		System.out.println("Game Clock: " + clock.getCount() + "\n");
+		
+		System.out.println("Current Score: " + player.getScore() + "\n");
+			
+		
+	}
+	
+	
+	
+
+	
+	
+	
+	
+}

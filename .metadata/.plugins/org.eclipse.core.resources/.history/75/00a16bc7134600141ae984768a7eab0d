@@ -1,0 +1,82 @@
+package a1.gameObjects;
+import java.awt.Color;
+import java.util.ArrayList;
+
+import a1.Point;
+
+/**
+ * 
+ * @author Andreas
+ *
+ */
+public class Snakes extends MoveableObject {
+	
+	private MoveableObject snakeHead;
+	private ArrayList<BodySegment> bodySegments = new ArrayList<BodySegment>();//DONT DO THIS
+	private MoveableObject body = new BodySegment();///might need to create array or arraylist
+	
+	//Make snake a singleton
+	//single global reference to the snake
+	private static Snakes theSnake;
+	
+	//insure that no one can construct a snake directly
+	private Snakes(){
+		//TODO
+	}
+	
+	private Snakes(int heading, int speed, float posX, float posY, Color newColor){
+		snakeHead = new Head();
+		snakeHead.setHeading(heading);
+		
+		for(int i = 0; i < 3; i++){
+			bodySegments.add(new BodySegment());
+		}
+		this.setSpeed(speed);
+		this.setPointLocation(posX, posY);
+		this.setColor(newColor);
+		
+		
+		
+		
+	}
+	
+	
+	//provide access to the snake, creating it if necessary
+	public static Snakes getSnakes(int heading, int speed, float posX, float posY, Color newColor){
+		if(theSnake == null){
+			theSnake = new Snakes(heading, speed, posX, posY, newColor);
+		}
+		return theSnake;
+	}
+	
+	
+	
+	
+	
+	
+
+	@Override
+	public void move() {
+		// TODO Auto-generated method stub
+		int angle = 90 - this.getHeading();
+		int deltaX = (int) (Math.cos(angle)*this.getSpeed());
+		int deltaY = (int) (Math.sin(angle)*this.getSpeed());
+		Point newLocation = new Point(deltaX, deltaY);
+		super.setPointLocation(newLocation);
+		
+		
+	}
+
+	@Override
+	public String toString() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	
+
+	
+
+	
+
+}

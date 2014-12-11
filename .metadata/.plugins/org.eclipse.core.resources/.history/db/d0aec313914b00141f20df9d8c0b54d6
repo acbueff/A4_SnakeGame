@@ -1,0 +1,28 @@
+package a1;
+
+import java.awt.Color;
+
+import a1.gameObjects.Walls;
+
+/**
+ * Runs the game by constructing once instance of 
+ * the Game class
+ * @author Andreas
+ *
+ */
+public class Starter {
+	public static void main(String[] args){
+		//Test Security of classes
+				Walls wall = new Walls(0,0,1,1,Color.BLUE);
+				System.out.println(wall.getColor());
+				wall.setColor(Color.BLACK);
+				System.out.println(wall.getColor());
+		
+		
+		Game g = new Game();
+		
+		
+		
+	}
+
+}

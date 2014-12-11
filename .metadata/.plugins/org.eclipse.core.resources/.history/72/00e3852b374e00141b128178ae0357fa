@@ -1,0 +1,68 @@
+package a1.Model.gameObjects;
+import java.awt.Color;
+import java.util.Random;
+
+import a1.Model.Point;
+
+public class Food extends FixedObject {
+
+	Random random = new Random();
+	
+	private int amount;
+	
+	//private Color color;
+	
+	public Food(float posX, float posY, Color newColor){
+		
+		super.setPointLocation(posX, posY);
+		super.setColor(newColor);
+		this.setAmount(random.nextInt(9) + 1);
+		
+		
+		
+		
+	}
+
+	@Override
+	public String toString() {
+		
+		String food ="Food: ";
+		String locX = "loc=" + Float.toString(this.getLocationX());
+		String locY = ","+Float.toString(this.getLocationY());
+		String color =" color=" + this.getColor().toString();
+		String amount = " amount=" + Integer.toString(this.getAmount());
+		String age = " age=" + Integer.toString(this.getAge());
+		
+		
+		return food + locX + locY + color + amount + age;
+	}
+	
+	public void setColor(Color newColor){
+		newColor = this.getColor();
+	}
+	
+
+	public int getAmount() {
+		return amount;
+	}
+
+	public void setAmount(int amount) {
+		this.amount = amount;
+	}
+	
+	//Security principles
+
+	public void setPointLocation(float x, float y){
+		super.setPointLocation(this.getLocationX(), this.getLocationY());
+	}
+	
+	public void setPointLocation(Point newLocation){
+		newLocation = new Point(this.getLocationX(), this.getLocationY());
+	}
+	
+	
+	
+	
+
+	
+}

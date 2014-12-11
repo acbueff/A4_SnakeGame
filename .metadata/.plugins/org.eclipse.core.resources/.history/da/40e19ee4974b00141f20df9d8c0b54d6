@@ -1,0 +1,34 @@
+package a1;
+
+import java.awt.Color;
+
+import a1.gameObjects.Birds;
+import a1.gameObjects.Food;
+import a1.gameObjects.Head;
+import a1.gameObjects.Money;
+import a1.gameObjects.Snakes;
+import a1.gameObjects.Walls;
+
+/**
+ * Runs the game by constructing once instance of 
+ * the Game class
+ * @author Andreas
+ *
+ */
+public class Starter {
+	public static void main(String[] args){
+		//Test Security of classes
+				Snakes theSnake = Snakes.getSnakes(0,0,1,1,Color.WHITE);
+				System.out.println(theSnake.getColor());
+				theSnake.setColor(Color.BLACK);
+				System.out.println(theSnake.snakeHead.getColor());
+				
+		
+		
+		Game g = new Game();
+		
+		
+		
+	}
+
+}

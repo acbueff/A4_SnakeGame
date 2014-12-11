@@ -3,6 +3,7 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
+import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.util.ArrayList;
 
@@ -30,6 +31,10 @@ public class Head extends MoveableObject implements ISteerable{
 		this.setSpeed(speed);
 		this.setPointLocation(posX, posY);
 		super.setColor(newColor);
+	}
+	
+	public Rectangle getBounds(){
+		return new Rectangle((int)this.getLocationX(),(int)this.getLocationY(),this.H,this.H);
 	}
 
 	//Move Head through GameWorld
@@ -226,13 +231,39 @@ public class Head extends MoveableObject implements ISteerable{
 				int R2X = (int) ((Walls)otherObject).getLocationY() + (((Walls)otherObject).getWidth()/2);
 				
 				
+				//RESOND TO INDIVIDUAL WALL
+				if(otherObject instanceof NorthWall){
+					if(((Walls) otherObject).getBounds().intersects(this.getBounds())){
+						this.addCollisionList(otherObject); result = true; return result;
+					}
+				}
+				else if(otherObject instanceof SouthWall){
+					if(((Walls) otherObject).getBounds().intersects(this.getBounds())){
+						this.addCollisionList(otherObject); result = true; return result;
+					}
+				}
+				else if(otherObject instanceof EastWall){
+					if(((Walls) otherObject).getBounds().intersects(this.getBounds())){
+						this.addCollisionList(otherObject); result = true; return result;
+					}
+				}
+				else if(otherObject instanceof WestWall){
+					if(((Walls) otherObject).getBounds().intersects(this.getBounds())){
+						this.addCollisionList(otherObject); result = true; return result;
+					}
+				}
+				else{
+					result = false; return result;
+				}
 				
+				
+				/**
 				 if(L1X <= 7){ this.addCollisionList(otherObject); result = true; return result;}
 				else if(B1Y <= 6){this.addCollisionList(otherObject); result = true;return result;}
 				else if(R1X >= 594){this.addCollisionList(otherObject); result = true;return result;}
 				else if(T1Y >= 594){this.addCollisionList(otherObject); result = true;return result;}
 				else{result = false;}
-			
+			*/
 		}
 		else if(otherObject instanceof Weasel){
 

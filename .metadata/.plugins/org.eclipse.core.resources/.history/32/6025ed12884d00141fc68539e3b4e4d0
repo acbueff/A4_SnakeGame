@@ -1,0 +1,294 @@
+package a1.Model;
+
+import java.awt.Color;
+import java.util.Random;
+
+import a1.Model.gameObjects.Birds;
+import a1.Model.gameObjects.FixedObject;
+import a1.Model.gameObjects.Food;
+import a1.Model.gameObjects.GameObject;
+import a1.Model.gameObjects.GameObjectCollection;
+import a1.Model.gameObjects.Money;
+import a1.Model.gameObjects.MoveableObject;
+import a1.Model.gameObjects.Snakes;
+import a1.Model.gameObjects.Walls;
+
+/**
+ * Game World class holds collection of GameObject classes
+ * 
+ * @author Andreas
+ *
+ */
+public class GameWorld{
+	private Random random = new Random();
+	
+	//Initial game objects that exist during course of Game
+	private Snakes theSnake;
+	private Walls nWall;
+	private Walls eWall;
+	private Walls sWall;
+	private Walls wWall;
+	
+	//Container to store game objects
+	private GameObjectCollection gameObjectCollection;
+		
+	/**
+	 *Creates initial Game Layout
+	 *Provides values for all GameObjects
+	 * 
+	 */
+	public void initLayout(){
+		//Class holds all game objects in an ArrayList
+		this.gameObjectCollection = new GameObjectCollection();
+		
+		//Snakes is a singleton
+		this.theSnake = Snakes.getSnakes(0,5,random.nextInt(200)+400,random.nextInt(200)+400,Color.RED);
+		//Initializes theSnake with three BodySegment objects
+		this.theSnake.NewSnake();	
+		
+		this.nWall = new Walls(500, 997, 988, 6, Color.BLACK);//north wall
+		this.eWall = new Walls(997, 500, 6, 1000, Color.BLACK);//east wall
+		this.sWall = new Walls(500, 3, 988, 6, Color.BLACK);//south wall
+		this.wWall = new Walls(3, 500, 6, 1000, Color.BLACK);
+		
+		//Add Game objects for initial Game layout 
+		 this.gameObjectCollection.add(theSnake);
+		 this.gameObjectCollection.add(new Birds(random.nextInt(10)+1, random.nextInt(361), 10, random.nextInt(301), random.nextInt(1001), Color.CYAN));
+		 this.gameObjectCollection.add(new Money(random.nextInt(970)+10,random.nextInt(970)+10, Color.GREEN));
+		 this.gameObjectCollection.add(new Food(random.nextInt(970)+10, random.nextInt(970)+10, Color.ORANGE));
+		 this.gameObjectCollection.add(nWall);
+		 this.gameObjectCollection.add(eWall);
+		 this.gameObjectCollection.add(sWall);
+		 this.gameObjectCollection.add(wWall);
+	
+		 
+	}
+
+	/**
+	 * Passes new direction to Snakes object 
+	 * Snakes object faces new direction
+	 * @param dir new direction
+	 */
+	public void changeHeading(String dir){
+		for(int i = 0; i<gameObjectCollection.size(); i++){
+			if(gameObjectCollection.get(i) instanceof Snakes){
+				((Snakes)gameObjectCollection.get(i)).changeSnakeHeading(dir);
+				
+				
+			}
+		}
+	}
+	
+	/**
+	 * All objects able to move in GameWorld collection use move method
+	 */
+	public void moveGameObject(){
+		for(int i = 0; i < gameObjectCollection.size(); i++){
+			if(gameObjectCollection.get(i) instanceof MoveableObject){
+				((MoveableObject)gameObjectCollection.get(i)).move();
+			}
+		}
+	}
+	
+	/**
+	 * Print all Game Objects
+	 * 
+	 *
+	 */
+	public void printGameObject(){
+		for(GameObject snake: gameObjectCollection){
+			if(snake instanceof Snakes){
+				System.out.println(snake.toString());
+			}
+			
+		}
+		for(GameObject bird: gameObjectCollection){
+			if(bird instanceof Birds){
+				System.out.println(bird.toString());
+			}
+			
+		}
+		for(GameObject money: gameObjectCollection){
+			if(money instanceof Money){
+				System.out.println(money.toString());
+			}
+			
+		}
+		for(GameObject food: gameObjectCollection){
+			if(food instanceof Food){
+				System.out.println(food.toString());
+			}
+			
+		}
+		for(GameObject wall: gameObjectCollection){
+			if(wall instanceof Walls){
+				System.out.println(wall.toString());
+			}
+			
+		}
+		
+		
+		
+		for(GameObject obj: gameObjectCollection){
+			if(obj instanceof Snakes){
+				System.out.println(obj.toString());
+			}
+			else if(obj instanceof Birds){
+				System.out.println(obj.toString());
+			}
+			else if(obj instanceof Money){
+				System.out.println(obj.toString());
+			}
+			else if(obj instanceof Money){
+				System.out.println(obj.toString());
+			}
+			else if(obj instanceof Food){
+				System.out.println(obj.toString());
+			}
+			else if(obj instanceof Walls){
+				System.out.println(obj.toString());
+			}
+			
+		}
+		
+	}
+	
+	
+	/**
+	 * 
+	 * @param player
+	 */
+	public void GameCollisionBodySegment(Player player){
+		for(GameObject bodySeg : gameObjectCollection){
+			
+				if(bodySeg instanceof Snakes){
+					
+					player.decrementLives();
+					if(player.getLives() == 0){
+						
+						System.out.println("Game Over: no more lives");
+						System.exit(0);
+						
+					}
+					else{
+						this.initLayout();
+					}break;
+				}
+		}
+	}
+	
+	/**
+	 * 
+	 * @param player
+	 */
+	public void GameCollisionMoney(Player player){
+		
+		for(GameObject money : gameObjectCollection){
+			
+				if(money instanceof Money){
+					//if more than one money select one at random to remove
+					int value = ((Money) money).getValue();
+					System.out.println("Money value: " + value);
+					player.setScore(value);//fix
+					System.out.println("Player score: " + player.getScore());
+					gameObjectCollection.remove(money);//GET AN INTERATOR
+					
+					break;
+				}
+				
+		}
+	}
+	
+	
+	public void GameCollisionBird(Player player){
+		for(GameObject bird : gameObjectCollection){
+			
+			if( bird instanceof Birds){
+				System.out.println("Instance of Bird detected");
+				player.decrementLives();
+				if(player.getLives() == 0){
+					System.out.println("Game Over: no more lives");
+					System.exit(0);
+				}
+				else{
+					initLayout();
+				}break;
+			}
+			
+		}
+	}
+	
+	//ISSUES WITH CASTING SNAKES
+	public void GameCollisionFood(Player player){
+		int growthPool = 0;
+		for(GameObject food : gameObjectCollection){
+			if(food instanceof Food){
+				growthPool = ((Food)food).getAmount();
+				gameObjectCollection.remove(food);
+				for(GameObject snake : gameObjectCollection){
+					if(snake instanceof Snakes){
+						((Snakes)snake).setNewSegCount(growthPool);
+					}	
+				}
+				
+				int moneyObjectAmount = random.nextInt(3) + 1;
+				for(int k = 0; k < moneyObjectAmount; k++){
+					gameObjectCollection.add(new Money(random.nextInt(970)+10,random.nextInt(970)+10, Color.GREEN));
+				}	
+				gameObjectCollection.add(new Food(random.nextInt(970)+10, random.nextInt(970)+10, Color.ORANGE));
+				
+			break;	
+			}
+			
+		}
+
+	}
+	
+	
+	public void GameCollisionWall(Player player){
+		
+		for(GameObject wall : gameObjectCollection){
+			if(wall instanceof Walls){
+				System.out.println("\n Wall object found in gameObjectCollection \n");
+				player.decrementLives();
+				if(player.getLives() == 0){
+					System.out.println("Game Over: no more lives");
+					System.exit(0);
+				}
+				else{
+					initLayout();
+				}break;
+			}
+		}
+
+		
+	}
+	
+	public void ageGameObjects(){
+		for(GameObject fixed: this.gameObjectCollection){
+			if(fixed instanceof FixedObject){
+				((FixedObject) fixed).incrementAge();
+			}
+		}
+	}
+	
+	public void GameDisplay(Player player, Clock clock){
+		
+		System.out.println("Player lives: " + player.getLives() + "\n");
+		
+		System.out.println("Game Clock: " + clock.getCount() + "\n");
+		
+		System.out.println("Current Score: " + player.getScore() + "\n");
+			
+		
+	}
+
+	
+	
+	
+
+	
+	
+	
+	
+}
