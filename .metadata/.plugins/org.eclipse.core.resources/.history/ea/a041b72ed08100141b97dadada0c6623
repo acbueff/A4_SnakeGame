@@ -3,7 +3,6 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
-import java.awt.geom.AffineTransform;
 import java.util.ArrayList;
 
 import a4.Model.Point;
@@ -20,50 +19,17 @@ public class Walls extends FixedObject{
 	
 	private boolean mark;
 	
-	private AffineTransform myRotation, myTranslation, myScale;
-	
 	public Walls(float posX, float posY, int width, int height, Color newColor){
-		super.setPointLocation(0, 0);
+		super.setPointLocation(posX, posY);
 		this.setWidth(width);
 		this.setHeight(height);
 		super.setColor(newColor);
 		
-		myRotation = new AffineTransform();
-		myTranslation = new AffineTransform();
-		myScale = new AffineTransform();
-		
 	}
 	
 	public Rectangle getBounds(){
-		return new Rectangle((int) this.getLocationX(),(int)this.getLocationY(),this.getWidth(),this.getHeight());
+		return new Rectangle((int) this.getLocationX()- this.getWidth()/2,(int)this.getLocationY()- this.getHeight()/2,this.getWidth(),this.getHeight());
 	}
-	
-	
-	//Following methods
-		//rotate,translate,resetTransform are AT related
-		public void rotate(double radians){
-			myRotation.rotate(radians);
-		}
-		
-		public void translate(double dx,double dy){
-			myTranslation.translate(dx,dy);
-		}
-		
-		public void resetTransform(){
-			myRotation.setToIdentity();
-			myTranslation.setToIdentity();
-			myScale.setToIdentity();
-		}
-		
-		public float getLocationX(){
-			
-			return (float) myTranslation.getTranslateX();
-		}
-		
-		public float getLocationY(){
-			
-			return (float) myTranslation.getTranslateY();
-		}
 	
 	//Color cannot be changed after instantiation
 	public void setColor(Color newColor){
@@ -100,11 +66,8 @@ public class Walls extends FixedObject{
 	 * walls are filled rectangles
 	 */
 	public void draw(Graphics2D g) {
-		AffineTransform saveAt = g.getTransform();
-		
 		g.setColor(this.getColor());
 		
-		/**
 		if(this.getWidth() > this.getHeight()){
 		g.fillRect((int)this.getLocationX() - this.getWidth()/2, (int)this.getLocationY() - this.getHeight()/2,
 				    this.getWidth(), this.getHeight());
@@ -113,13 +76,6 @@ public class Walls extends FixedObject{
 			g.fillRect((int)this.getLocationX() - this.getWidth()/2, (int)this.getLocationY() - this.getHeight()/2,
 				    this.getWidth(), this.getHeight());
 		}
-		*/
-		g.transform(myTranslation);
-		g.transform(myRotation);
-		g.transform(myScale);
-		g.fillRect(0, 0, width, height);
-		
-		g.setTransform(saveAt);
 		
 	}
 

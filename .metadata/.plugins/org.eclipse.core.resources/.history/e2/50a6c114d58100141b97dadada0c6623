@@ -35,7 +35,7 @@ public class Walls extends FixedObject{
 	}
 	
 	public Rectangle getBounds(){
-		return new Rectangle((int) this.getLocationX(),(int)this.getLocationY(),this.getWidth(),this.getHeight());
+		return new Rectangle((int) this.getLocationX()- this.getWidth()/2,(int)this.getLocationY()- this.getHeight()/2,this.getWidth(),this.getHeight());
 	}
 	
 	

@@ -38,8 +38,8 @@ public class FollowHeadingStrategy implements IStrategy{
 				float deltaX = (int) (Math.cos(Math.toRadians(angle))*client.getSpeed());
 				float deltaY = (int) (Math.sin(Math.toRadians(angle))*client.getSpeed());
 				
-				float newX = deltaX*(((float)move)/160);
-				float newY = deltaY*(((float)move)/160);
+				float newX = deltaX*(((float)move)/50);
+				float newY = deltaY*(((float)move)/50);
 				
 				client.translate(newX, newY);
 				client.setHeadingFlag(true);
@@ -49,8 +49,8 @@ public class FollowHeadingStrategy implements IStrategy{
 				float deltaX = (int) (Math.cos(Math.toRadians(angle))*client.getSpeed());
 				float deltaY = (int) (Math.sin(Math.toRadians(angle))*client.getSpeed());
 				
-				float newX =   deltaX*(((float)move)/160);
-				float newY = deltaY*(((float)move)/160);
+				float newX =   deltaX*(((float)move)/50);
+				float newY = deltaY*(((float)move)/50);
 				
 				
 				client.translate(newX, newY);

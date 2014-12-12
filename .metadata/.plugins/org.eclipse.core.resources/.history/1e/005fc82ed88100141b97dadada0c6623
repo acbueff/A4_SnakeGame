@@ -183,7 +183,7 @@ public class GameWorld implements IObservable, IGameWorld{
 		EastWall eastWall = (EastWall) makeEastWall();
 		eastWall.translate(WLARGE - (WSMALL/2), WLARGE/2);
 		WestWall westWall = (WestWall) makeWestWall();
-		westWall.translate(4,0);
+		westWall.translate(4,WLARGE/2);
 		//Add Game objects for initial Game layout 
 		 gameObjectCollection.add(theSnake);
 		 gameObjectCollection.add(theBird);

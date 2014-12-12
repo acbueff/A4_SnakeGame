@@ -23,7 +23,7 @@ public class Walls extends FixedObject{
 	private AffineTransform myRotation, myTranslation, myScale;
 	
 	public Walls(float posX, float posY, int width, int height, Color newColor){
-		super.setPointLocation(0, 0);
+		super.setPointLocation(posX, posY);
 		this.setWidth(width);
 		this.setHeight(height);
 		super.setColor(newColor);
@@ -35,7 +35,7 @@ public class Walls extends FixedObject{
 	}
 	
 	public Rectangle getBounds(){
-		return new Rectangle((int) this.getLocationX(),(int)this.getLocationY(),this.getWidth(),this.getHeight());
+		return new Rectangle((int) this.getLocationX()- this.getWidth()/2,(int)this.getLocationY()- this.getHeight()/2,this.getWidth(),this.getHeight());
 	}
 	
 	
@@ -104,7 +104,6 @@ public class Walls extends FixedObject{
 		
 		g.setColor(this.getColor());
 		
-		/**
 		if(this.getWidth() > this.getHeight()){
 		g.fillRect((int)this.getLocationX() - this.getWidth()/2, (int)this.getLocationY() - this.getHeight()/2,
 				    this.getWidth(), this.getHeight());
@@ -113,11 +112,7 @@ public class Walls extends FixedObject{
 			g.fillRect((int)this.getLocationX() - this.getWidth()/2, (int)this.getLocationY() - this.getHeight()/2,
 				    this.getWidth(), this.getHeight());
 		}
-		*/
-		g.transform(myTranslation);
-		g.transform(myRotation);
-		g.transform(myScale);
-		g.fillRect(0, 0, width, height);
+		
 		
 		g.setTransform(saveAt);
 		

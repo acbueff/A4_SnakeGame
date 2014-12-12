@@ -3,7 +3,6 @@ package a4.Model.gameObjects;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.util.ArrayList;
 import java.util.Random;
@@ -48,9 +47,6 @@ public class Weasel extends MoveableObject implements ISelectable{
 		myRotation.rotate(Math.toRadians(90-heading));//maybe
 	}
 	
-	public Rectangle getBounds(){
-		return new Rectangle((int) this.getLocationX(),(int)this.getLocationY(),this.size,this.size/2);
-	}
 	
 	
 	//Following methods

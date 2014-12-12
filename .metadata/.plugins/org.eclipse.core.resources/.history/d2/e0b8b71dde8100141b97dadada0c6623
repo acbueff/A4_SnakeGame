@@ -31,43 +31,11 @@ public class Head extends MoveableObject implements ISteerable{
 		this.setSpeed(speed);
 		this.setPointLocation(posX, posY);
 		super.setColor(newColor);
-		
-		myRotation = new AffineTransform();
-		myTranslation = new AffineTransform();
-		myScale = new AffineTransform();
-		
-		
 	}
 	
 	public Rectangle getBounds(){
 		return new Rectangle((int)this.getLocationX()-H/2,(int)this.getLocationY()-H/2,this.H,this.H);
 	}
-	
-	//Following methods
-		//rotate,translate,resetTransform are AT related
-		public void rotate(double radians){
-			myRotation.rotate(radians);
-		}
-		
-		public void translate(double dx,double dy){
-			myTranslation.translate(dx,dy);
-		}
-		
-		public void resetTransform(){
-			myRotation.setToIdentity();
-			myTranslation.setToIdentity();
-			myScale.setToIdentity();
-		}
-		
-		public float getLocationX(){
-			
-			return (float) myTranslation.getTranslateX();
-		}
-		
-		public float getLocationY(){
-			
-			return (float) myTranslation.getTranslateY();
-		}
 
 	//Move Head through GameWorld
 	//Make move incremental till value of speed met, while loop?

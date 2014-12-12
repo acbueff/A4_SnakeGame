@@ -183,7 +183,7 @@ public class GameWorld implements IObservable, IGameWorld{
 		EastWall eastWall = (EastWall) makeEastWall();
 		eastWall.translate(WLARGE - (WSMALL/2), WLARGE/2);
 		WestWall westWall = (WestWall) makeWestWall();
-		westWall.translate(4,0);
+		westWall.translate(4,WLARGE/2);
 		//Add Game objects for initial Game layout 
 		 gameObjectCollection.add(theSnake);
 		 gameObjectCollection.add(theBird);
@@ -445,8 +445,7 @@ public class GameWorld implements IObservable, IGameWorld{
 	 */
 	public void BirdRespawn(int time){
 		
-		if(this.getMode()){
-		if(birdCount == 0){
+		if(birdCount == 0 && this.getMode()){
 			for(GameObject obj : gameObjectCollection){
 				if(obj instanceof Birds){
 					gameObjectCollection.remove(obj);
@@ -459,7 +458,6 @@ public class GameWorld implements IObservable, IGameWorld{
 			}
 		}else{
 			birdCount--;
-		}
 		}
 	}
 	
