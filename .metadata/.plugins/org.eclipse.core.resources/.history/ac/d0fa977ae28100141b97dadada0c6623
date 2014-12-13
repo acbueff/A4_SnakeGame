@@ -1,0 +1,394 @@
+package a4.Model.gameObjects;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Polygon;
+import java.awt.Rectangle;
+import java.awt.geom.AffineTransform;
+import java.util.ArrayList;
+
+import a4.Model.GameWorld;
+
+/**
+ * Head class provides Snakes class means of steering itself with user input
+ * 
+ * @author 	Andreas
+ *
+ */
+public class Head extends MoveableObject implements ISteerable{
+	
+	//MAKE THIS LOOK BETTER
+	private final int H = 10;
+	private static ArrayList<ICollider> hitList = new ArrayList<ICollider>();
+	private boolean mark;
+	private AffineTransform myRotation, myTranslation, myScale;
+	
+	private GameWorld realGameWorld = new GameWorld();
+	
+	
+	public Head(int heading, int speed, float posX, float posY,Color newColor){
+		this.setHeading(heading);
+		this.setSpeed(speed);
+		this.setPointLocation(posX, posY);
+		super.setColor(newColor);
+		
+		myRotation = new AffineTransform();
+		myTranslation = new AffineTransform();
+		myScale = new AffineTransform();
+		
+		//this.rotate(radians);
+	}
+	
+	public Rectangle getBounds(){
+		return new Rectangle((int)this.getLocationX()-H/2,(int)this.getLocationY()-H/2,this.H,this.H);
+	}
+	
+	//Following methods
+		//rotate,translate,resetTransform are AT related
+		public void rotate(double radians){
+			myRotation.rotate(radians);
+		}
+		
+		public void translate(double dx,double dy){
+			myTranslation.translate(dx,dy);
+		}
+		
+		public void resetTransform(){
+			myRotation.setToIdentity();
+			myTranslation.setToIdentity();
+			myScale.setToIdentity();
+		}
+		
+		public float getLocationX(){
+			
+			return (float) myTranslation.getTranslateX();
+		}
+		
+		public float getLocationY(){
+			
+			return (float) myTranslation.getTranslateY();
+		}
+
+	//Move Head through GameWorld
+	//Make move incremental till value of speed met, while loop?
+	public void move(int time) {
+		
+			float angle = (90 - this.getHeading());
+			
+			float deltaX = (int) (Math.cos(Math.toRadians(angle))*(this.getSpeed()));
+			float deltaY = (int) (Math.sin(Math.toRadians(angle))*(this.getSpeed()));
+			
+			float newX = this.getLocationX() + deltaX*(((float)time)/50);
+			float newY = this.getLocationY() + deltaY*(((float)time)/50);
+			
+			
+			//this.setPointLocation(newX, newY);
+			this.translate(newX, newY);
+		
+	}
+	
+	
+
+
+
+	/**
+	 * User input dictates whether Head is facing north, east, south, and west
+	 */
+	public void changeHeading(String dir) {
+		
+		switch(dir){
+		case "n":
+			this.setHeading(0);
+			break;
+		case "e":
+			this.setHeading(90);
+			break;
+		case "s":
+			this.setHeading(180);
+			break;
+		case "w":
+			this.setHeading(270);
+			break;
+		default:
+		
+			System.out.println("1000years rick and morty");
+		}
+		
+	}
+	
+	public int getH(){
+		return H;
+	}
+	
+	//Security issues
+	public void setColor(Color newColor){
+		newColor = null;
+	}
+
+	/**
+	 * filled triangle for snakeHead
+	 * responsible for drawing object
+	 */
+	public void draw(Graphics2D g) {
+		AffineTransform saveAt = g.getTransform();
+		g.setColor(this.getColor());
+		Polygon p = new Polygon();
+		g.transform(myTranslation);
+		g.transform(myRotation);
+		g.transform(myScale);
+		switch(this.getHeading()){ 
+		case 0:
+			p.addPoint(((int)this.getLocationX()), H*2/3 + (int)this.getLocationY());
+			p.addPoint((int)this.getLocationX() + H*2/3, (int)this.getLocationY() - H/3);
+			p.addPoint((int)this.getLocationX() - H*2/3, (int)this.getLocationY() - H/3);	
+			break;
+		case 90://fix it later, head too high
+			p.addPoint(((int)this.getLocationX())+(H*2)/3, ((int)this.getLocationY()));
+			p.addPoint(((int)this.getLocationX() - H/3), (int)(this.getLocationY() - H * (Math.sqrt(3))/3));
+			p.addPoint(((int)this.getLocationX() - H/3), (int)(this.getLocationY() + H*(Math.sqrt(3))/3));
+			break;
+		case 180://ISSUES IN DRAW
+			p.addPoint(((int)this.getLocationX()), ((int)this.getLocationY() - (H*2)/3));
+			p.addPoint(((int)this.getLocationX() + H*2/3), ((int)this.getLocationY() + H/3));
+			p.addPoint(((int)this.getLocationX() - H*2/3), ((int)this.getLocationY() + H/3));
+			break;
+		case 270://same problem
+		
+			p.addPoint(((int)this.getLocationX())-(H*2)/3, ((int)this.getLocationY()));
+			p.addPoint(((int)this.getLocationX() + H/3), (int)(this.getLocationY() - H * (Math.sqrt(3))/3));
+			p.addPoint(((int)this.getLocationX() + H/3), (int)(this.getLocationY() + H*(Math.sqrt(3))/3));
+			break;
+		default:
+			p.addPoint(((int)this.getLocationX())-(H*2)/3, ((int)this.getLocationY()));
+			p.addPoint(((int)this.getLocationX() + H/3), (int)(this.getLocationY() - H * (Math.sqrt(3))/3));
+			p.addPoint(((int)this.getLocationX() + H/3), (int)(this.getLocationY() + H*(Math.sqrt(3))/3));
+			break;
+			
+		} 
+		
+		g.fillPolygon(p);
+		g.setTransform(saveAt);
+	}
+
+	//Head collides with...
+	public boolean collidesWith(ICollider otherObject) {
+		boolean result = false;
+			//circle bounding
+		//center
+		int thisCenterX = (int) this.getLocationX(); 
+		int thisCenterY = (int) this.getLocationY(); 
+			
+			int thisRadius = this.getH()/2;
+			//rectangle bounding
+			int R1X = (int) (this.getLocationX() + (this.getH()/2));
+			int L1X =	(int) (this.getLocationX() - (this.getH()/2));
+			int T1Y = (int) (this.getLocationY() + (this.getH()/2));
+			int B1Y = (int) (this.getLocationY() - (this.getH()/2));
+	
+	//Check to see if object is already in list of collisions		
+	for(int i = 0; i < this.hitList.size(); i++){
+		if(this.hitList.get(i) == otherObject){
+			return result;//should be false
+		}
+	}	
+		if(otherObject instanceof Food){
+			
+				int otherCenterX = (int) ((Food)otherObject).getLocationX(); 
+				int otherCenterY = (int) ((Food)otherObject).getLocationY(); 
+				
+				
+				int dx = thisCenterX - otherCenterX;
+				int dy = thisCenterY - otherCenterY;
+				int dist=(dx*dx+dy*dy);
+				
+				
+				int otherRadius = ((Food)otherObject).getSize()/2;
+				
+				int radiiSqr = (thisRadius*thisRadius + 2*thisRadius*otherRadius + otherRadius*otherRadius);
+				if(dist <=radiiSqr){result = true;}
+				else{ result = false;}
+		}
+		else if(otherObject instanceof Money){
+			
+			
+			int otherCenterX = (int) ((Money)otherObject).getLocationX();
+			int otherCenterY = (int) ((Money)otherObject).getLocationY(); 
+			
+			int dx = thisCenterX - otherCenterX;
+			int dy = thisCenterY - otherCenterY;
+			int dist=(dx*dx+dy*dy);
+			
+			
+			int otherRadius = ((Money)otherObject).getSize()/2;
+			
+			int radiiSqr = (thisRadius*thisRadius + 2*thisRadius*otherRadius + otherRadius*otherRadius);
+			if(dist <=radiiSqr){
+				this.addCollisionList(otherObject);
+				result = true;
+			}
+			else{ result = false;}
+			
+		}
+		else if(otherObject instanceof Snakes){
+			for(int b =3; b <((Snakes)otherObject).getBodySegPos().size(); b++){
+				
+				int otherCenterX = (int) (((Snakes)otherObject).getBodySegPos().get(b).getLocationX()
+											+ ((Snakes)otherObject).getBodySegPos().get(b).getBodySize()/2);
+				int otherCenterY = (int) (((Snakes)otherObject).getBodySegPos().get(b).getLocationY()
+											+ ((Snakes)otherObject).getBodySegPos().get(b).getBodySize()/2);
+				
+				int dx = thisCenterX - otherCenterX;
+				int dy = thisCenterY - otherCenterY;
+				int dist=(dx*dx+dy*dy);
+				
+				
+				int otherRadius = ((Snakes)otherObject).getBodySegPos().get(b).getBodySize()/2;
+				
+				int radiiSqr = (thisRadius*thisRadius + 2*thisRadius*otherRadius + otherRadius*otherRadius);
+				if(dist <=radiiSqr){
+					
+					this.addCollisionList(otherObject);
+					return result = true;
+				}
+				else{ result = false;}
+				
+				
+				
+			}
+			
+		}
+		else if(otherObject instanceof Walls){//SQUARE?
+			
+				/**
+				 * UNDER CONSTRUCTION
+				 */
+				int T2Y = (int) ((Walls)otherObject).getLocationY() + (((Walls)otherObject).getHeight()/2);
+				int L2X = (int) ((Walls)otherObject).getLocationX() - (((Walls)otherObject).getWidth()/2);
+				int B2Y = (int) ((Walls)otherObject).getLocationY() - (((Walls)otherObject).getHeight()/2);
+				int R2X = (int) ((Walls)otherObject).getLocationY() + (((Walls)otherObject).getWidth()/2);
+				
+				
+				//RESOND TO INDIVIDUAL WALL
+				if(otherObject instanceof NorthWall){
+					if(((Walls) otherObject).getBounds().intersects(this.getBounds())){
+						this.addCollisionList(otherObject); result = true; return result;
+					}
+				}
+				else if(otherObject instanceof SouthWall){
+					if(((Walls) otherObject).getBounds().intersects(this.getBounds())){
+						this.addCollisionList(otherObject); result = true; return result;
+					}
+				}
+				else if(otherObject instanceof EastWall){
+					if(((Walls) otherObject).getBounds().intersects(this.getBounds())){
+						this.addCollisionList(otherObject); result = true; return result;
+					}
+				}
+				else if(otherObject instanceof WestWall){
+					if(((Walls) otherObject).getBounds().intersects(this.getBounds())){
+						this.addCollisionList(otherObject); result = true; return result;
+					}
+				}
+				else{
+					result = false; return result;
+				}
+				
+				
+				/**
+				 if(L1X <= 7){ this.addCollisionList(otherObject); result = true; return result;}
+				else if(B1Y <= 6){this.addCollisionList(otherObject); result = true;return result;}
+				else if(R1X >= 594){this.addCollisionList(otherObject); result = true;return result;}
+				else if(T1Y >= 594){this.addCollisionList(otherObject); result = true;return result;}
+				else{result = false;}
+			*/
+		}
+		else if(otherObject instanceof Weasel){
+
+			int otherCenterX = (int) ((Weasel)otherObject).getLocationX(); 
+			int otherCenterY = (int) ((Weasel)otherObject).getLocationY(); 
+			
+			int dx = thisCenterX - otherCenterX;
+			int dy = thisCenterY - otherCenterY;
+			int dist=(dx*dx+dy*dy);
+			
+			
+			int otherRadius = ((Weasel)otherObject).getSize()/2;
+			
+			int radiiSqr = (thisRadius*thisRadius + 2*thisRadius*otherRadius + otherRadius*otherRadius);
+			if(dist <=radiiSqr){
+			  this.addCollisionList(otherObject);
+			  result = true;}
+			else{ result = false;}
+			
+			
+			
+		}
+		else if(otherObject instanceof Birds){
+			int otherCenterX = (int) ((Birds)otherObject).getLocationX() + (((Birds)otherObject).getSize()/2);
+			int otherCenterY = (int) ((Birds)otherObject).getLocationY() + (((Birds)otherObject).getSize()/4);
+			
+			int dx = thisCenterX - otherCenterX;
+			int dy = thisCenterY - otherCenterY;
+			int dist=(dx*dx+dy*dy);
+			
+			
+			int otherRadius = ((Birds)otherObject).getSize()/2;
+			
+			int radiiSqr = (thisRadius*thisRadius + 2*thisRadius*otherRadius + otherRadius*otherRadius);
+			if(dist <=radiiSqr){
+				this.addCollisionList(otherObject);
+				result = true;
+			}
+			else{ result = false;}
+		}
+		
+		
+		return result;
+	}
+
+	
+	public void handleCollision(ICollider otherObject) {
+		
+		otherObject.setMark(true);
+		this.removeCollision(otherObject);
+		
+		
+	}
+
+	@Override
+	public void addCollisionList(ICollider collobj) {
+		this.hitList.add(collobj);
+		
+	}
+
+	@Override
+	public void removeCollision(ICollider collobj) {
+		this.hitList.remove(collobj);
+		
+	}
+
+	@Override
+	public ArrayList<ICollider> getCollisionList() {
+		// TODO Auto-generated method stub
+		return this.hitList;
+	}
+
+	@Override
+	public void clearCollisions(ArrayList<ICollider> collList) {
+		collList.clear();
+		
+	}
+
+	@Override
+	public void setMark(boolean mark) {
+		this.mark =mark;
+		
+	}
+
+	@Override
+	public boolean getMark() {
+		// TODO Auto-generated method stub
+		return this.mark;
+	}
+
+}

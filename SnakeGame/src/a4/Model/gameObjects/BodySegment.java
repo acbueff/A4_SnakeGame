@@ -26,9 +26,40 @@ public class BodySegment extends MoveableObject{
 	public BodySegment(int heading, int speed, float posX, float posY, Color newColor){
 		this.setHeading(heading);
 		this.setSpeed(speed);
-		this.setPointLocation(posX, posY);
+		this.setPointLocation(0, 0);
 		super.setColor(newColor);
+		
+		myRotation = new AffineTransform();
+		myTranslation = new AffineTransform();
+		myScale = new AffineTransform();
+		
 	}
+	
+	//Following methods
+			//rotate,translate,resetTransform are AT related
+			public void rotate(double radians){
+				myRotation.rotate(radians);
+			}
+			
+			public void translate(double dx,double dy){
+				myTranslation.translate(dx,dy);
+			}
+			
+			public void resetTransform(){
+				myRotation.setToIdentity();
+				myTranslation.setToIdentity();
+				myScale.setToIdentity();
+			}
+			
+			public float getLocationX(){
+				
+				return (float) myTranslation.getTranslateX();
+			}
+			
+			public float getLocationY(){
+				
+				return (float) myTranslation.getTranslateY();
+			}
 
 	//NOT implemented
 	public void move(int time) {
@@ -38,11 +69,11 @@ public class BodySegment extends MoveableObject{
 		float deltaX = (int) (Math.cos(Math.toRadians(angle))*this.getSpeed());
 		float deltaY = (int) (Math.sin(Math.toRadians(angle))*this.getSpeed());
 		
-		float newX = this.getLocationX() + deltaX;
-		float newY = this.getLocationY() + deltaY;
+		float newX =  deltaX;
+		float newY =  deltaY;
 		
-		
-		this.setPointLocation(newX, newY);
+		this.translate(newX, newY);
+		//this.setPointLocation(newX, newY);
 		
 	}
 
@@ -55,11 +86,15 @@ public class BodySegment extends MoveableObject{
 
 	@Override
 	public void draw(Graphics2D g) {
-		  
+		AffineTransform saveAt = g.getTransform();
 		g.setColor(this.getColor());
-		g.fillRect((int)this.getLocationX()-size/2, (int)this.getLocationY()-size/2, size, size); 
 		
+		g.transform(myTranslation);
+		g.transform(myRotation);
+		g.transform(myScale);
+		g.fillRect(0, 0, size, size); 
 		
+		g.setTransform(saveAt);
 		
 	}
 

@@ -157,6 +157,7 @@ public class GameWorld implements IObservable, IGameWorld{
 		Snakes theSnake = makeSnake();
 		//Initializes theSnake with three BodySegment objects
 		theSnake.NewSnake();
+		theSnake.translate(200, 200);
 		
 		Birds theBird = makeBird();
 		theBird.translate(random.nextInt(301)+10, random.nextInt(500)+10);

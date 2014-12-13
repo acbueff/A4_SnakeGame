@@ -25,6 +25,15 @@ public class MapView extends JPanel implements IObserver, MouseListener{
 	
 	
 	
+	
+	private double windowLeft = 0;
+	private double windowRight = 600;
+	private double windowTop = 600;
+	private double windowBottom= 0;
+	
+	private AffineTransform worldToND, ndToScreen, theVTM;
+	
+	
 	//update calls repaint on itself
 	public void update(IObservable o, Object arg) {
 		 this.addMouseListener(this);
@@ -45,16 +54,41 @@ public class MapView extends JPanel implements IObserver, MouseListener{
 		Graphics2D g2d = (Graphics2D)g;
 		AffineTransform saveAT = g2d.getTransform();
 		
+		worldToND = buildWorldToNDXform(windowRight,windowTop,windowLeft,windowBottom);
+		ndToScreen = buildNDToScreenXform(this.getWidth(),this.getHeight());
+		theVTM = (AffineTransform) ndToScreen.clone();
+		theVTM.concatenate(worldToND);
+		
 		//screen coordinate transformation to g2d object
-		g2d.translate(0, this.getHeight());
-		g2d.scale(1, -1);
+		//g2d.translate(0, this.getHeight());
+		//g2d.scale(1, -1);
+		
+		g2d.transform(theVTM);
 		for(GameObject obj: ((GameWorldProxy)gwp).getGameObjectCollection()){//MAYBE BETTER ITERATOR...Later
 			
 			obj.draw(g2d);
 		}
-		//g2d.setTransform(saveAT);
+		g2d.setTransform(saveAT);
 	}
-
+	
+	public AffineTransform buildWorldToNDXform(double width,double height,double left, double bottom){
+		AffineTransform W2ND = new AffineTransform();
+		AffineTransform scale = new AffineTransform();
+		W2ND.translate(0-left,0-bottom);
+		scale.scale(1/width, 1/height);
+		scale.concatenate(W2ND);
+		return scale;
+	}
+	
+	public AffineTransform buildNDToScreenXform(double swidth, double sheight){
+		AffineTransform NDS = new AffineTransform();
+		//AffineTransform scale = new AffineTransform();
+		AffineTransform trans = new AffineTransform();
+		NDS.scale(swidth, 0-sheight);
+		trans.translate(0, sheight);
+		trans.concatenate(NDS);
+		return trans;
+	}
 	
 	public void mouseClicked(MouseEvent e) {
 		java.awt.Point get = e.getPoint();
