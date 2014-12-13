@@ -325,6 +325,13 @@ public class Game extends JFrame implements ActionListener{
 		
 		gw.BirdRespawn(DELAY_IN_MSEC);
 		
+		for(GameObject obj: gw.getGameObjectCollection()){
+			if(obj instanceof Birds){
+				((Birds) obj).update();
+				mv.repaint();
+			}
+		}
+		
 		/**
 		 * BACKGROUND MUSIC
 		 * will only play if

@@ -3,6 +3,8 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.NoninvertibleTransformException;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 
 import a4.Model.IDrawable;
@@ -20,6 +22,12 @@ public class Birds extends MoveableObject implements IDrawable, ICollider, ISele
 	private int size;
 	private boolean mark;//for removal from collision
 	private boolean isSelected;//for selection
+	private BirdsWing [] wings;
+	
+	private double wingOffset = 0;
+	private double wingIncrement = +5;
+	private double maxWingOffset = 15;
+	
 	private AffineTransform myRotation, myTranslation, myScale;//AT to transform oval to "screen space"
 	/**
 	 * Bird constructor with user input
@@ -36,14 +44,29 @@ public class Birds extends MoveableObject implements IDrawable, ICollider, ISele
 		myTranslation = new AffineTransform();
 		myScale = new AffineTransform();
 		
-		this.rotate(Math.toRadians(90 - this.getHeading()));
+		this.rotate(90 - this.getHeading());
+		
+		//this.scale(2.5, 1.5);
+		wings = new BirdsWing[2]; 
+		//TWO WINGS
+		BirdsWing wing0 = new BirdsWing();
+		wing0.translate(this.size/2, this.size);
+		wing0.scale(this.size*0.005,this.size*0.008);
+		wings[0] = wing0;
+		
+		BirdsWing wing1 = new BirdsWing();
+		wing1.translate(this.size/2, -10);
+		wing1.scale(this.size*0.005,this.size*0.008);
+		wing1.rotate(180);
+		
+		wings[1]=wing1;
 		
 	}
 	
 	//Following methods
 	//rotate,translate,resetTransform are AT related
 	public void rotate(double radians){
-		myRotation.rotate(radians);
+		myRotation.rotate(Math.toRadians(radians));
 	}
 	
 	public void translate(double dx,double dy){
@@ -54,6 +77,10 @@ public class Birds extends MoveableObject implements IDrawable, ICollider, ISele
 		myRotation.setToIdentity();
 		myTranslation.setToIdentity();
 		myScale.setToIdentity();
+	}
+	
+	public void scale(double sx, double sy){
+		myScale.scale(sx, sy);
 	}
 	
 	public float getLocationX(){
@@ -127,6 +154,11 @@ public class Birds extends MoveableObject implements IDrawable, ICollider, ISele
 			g.transform(myScale);
 			//g.fillOval((int)this.getLocationX(), (int)this.getLocationY(), this.size, this.size/2);//screen location
 			g.fillOval(0, 0, this.size, this.size/2);	//local space
+			for(BirdsWing obj: wings){
+				obj.draw(g);
+			}
+			
+			
 		}else{
 			
 			g.setColor(this.getColor()); 
@@ -136,10 +168,27 @@ public class Birds extends MoveableObject implements IDrawable, ICollider, ISele
 			g.transform(myScale);
 			
 			//g.fillOval((int)this.getLocationX(),(int) this.getLocationY(), this.size, this.size/2);
-			g.fillOval(0, 0, this.size, this.size/2);	//local space
+			g.fillOval(0, 0, this.size, this.size/2);//local space
+			for(int i = 0; i < wings.length; i++){
+				wings[i].draw(g);
+			}
 		}
 		
 		g.setTransform(saveAt);
+	}
+	
+	/**
+	 * SO THE BIRD CAN FLY
+	 */
+	public void update(){
+		wingOffset += wingIncrement;
+		for(int i = 0; i < wings.length; i++){
+			wings[i].translate(0,wingOffset);
+		}
+		if(Math.abs(wingOffset) >= maxWingOffset){
+			wingIncrement *=-1;
+			
+		}
 	}
 
 	//bounding circles for bird
@@ -205,14 +254,28 @@ public class Birds extends MoveableObject implements IDrawable, ICollider, ISele
 	}
 
 	@Override
-	public boolean contains(Point p) {
-		//mouse selection
-		int px = (int) p.getX();
-		int py = (int) p.getY();
+	public boolean contains(Point2D p) {
+		Point2D localPoint = null;
+		try{
+			localPoint = myTranslation.createInverse().transform(p,null);
+		}catch(NoninvertibleTransformException e1){
+			System.out.println("Error of type: " + e1);
+			//localPoint = new Point2D(this.getLocationX(),this.getLocationY());
+		}
 		
-		//shape location
-		int xLoc = (int)this.getLocationX();//keep in mind true center of circle
-		int yLoc = (int)this.getLocationY();
+		//mouse selection
+		double px =  p.getX();
+		double py = p.getY();
+		
+		
+		  //shape location
+		double xLoc = this.getLocationX()-size;//keep in mind true center of circle
+		double yLoc = this.getLocationY()-size/2;
+		
+		/**
+		double xLoc = localPoint.getX();//keep in mind true center of circle
+		double yLoc = localPoint.getY();*/
+		
 		
 		if((px >= xLoc) && (px <= xLoc+size)
 			&& (py >= yLoc && (py <= yLoc+size/2))){return true;}

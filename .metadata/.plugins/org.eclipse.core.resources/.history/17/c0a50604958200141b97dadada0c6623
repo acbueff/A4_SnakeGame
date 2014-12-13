@@ -1,0 +1,251 @@
+package a4.Model.gameObjects;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.geom.AffineTransform;
+import java.util.ArrayList;
+
+import a4.Model.IDrawable;
+import a4.Model.ISelectable;
+import a4.Model.Point;
+
+/**
+ * Birds class responsible for attacking snake in GameWorld
+ * Color is fixed on instantiation
+ * @author Andreas
+ *
+ */
+public class Birds extends MoveableObject implements IDrawable, ICollider, ISelectable {
+	
+	private int size;
+	private boolean mark;//for removal from collision
+	private boolean isSelected;//for selection
+	private BirdsWing [] wings;
+	private AffineTransform myRotation, myTranslation, myScale;//AT to transform oval to "screen space"
+	/**
+	 * Bird constructor with user input
+	 */
+	public Birds(int size, int heading, int speed, float posX, float posY, Color newColor ){
+		this.size = size*5;
+		this.setHeading(heading);
+		this.setSpeed(3);
+		//this.setPointLocation(posX, posY);
+		this.setPointLocation(0,0);
+		super.setColor(newColor);
+		
+		myRotation = new AffineTransform();
+		myTranslation = new AffineTransform();
+		myScale = new AffineTransform();
+		
+		this.rotate(90 - this.getHeading());
+		
+		wings = new BirdsWing[2]; 
+		//TWO WINGS
+		BirdsWing wing0 = new BirdsWing();
+		wing0.translate(0, this.size+10);
+		wing0.scale(0.5,0.8);
+		wings[0] = wing0;
+		
+		BirdsWing wing1 = new BirdsWing();
+		wing1.translate(0, this.size+10);
+		wing1.scale(0.5,0.8);
+		wing1.rotate(180);
+		
+		wings[1]=wing1;
+		
+	}
+	
+	//Following methods
+	//rotate,translate,resetTransform are AT related
+	public void rotate(double radians){
+		myRotation.rotate(Math.toRadians(radians));
+	}
+	
+	public void translate(double dx,double dy){
+		myTranslation.translate(dx,dy);
+	}
+	
+	public void resetTransform(){
+		myRotation.setToIdentity();
+		myTranslation.setToIdentity();
+		myScale.setToIdentity();
+	}
+	
+	public float getLocationX(){
+		
+		return (float) myTranslation.getTranslateX();
+	}
+	
+	public float getLocationY(){
+		
+		return (float) myTranslation.getTranslateY();
+	}
+	
+	
+	
+	public void setColor(Color newColor){
+		newColor = null;
+	
+	}
+	
+	public int getSize(){
+		return size;
+	}
+	
+	public void setSize(int newSize){
+		this.size = newSize;
+	}
+
+	//Moves bird through GameWorld
+	public void move(int time) {
+		float angle = (90 - this.getHeading());
+		
+		
+		
+		float deltaX = (int) (Math.cos(Math.toRadians(angle))*this.getSpeed());
+		float deltaY = (int) (Math.sin(Math.toRadians(angle))*this.getSpeed());
+		
+		float newX =  deltaX*(((float)time)/50);
+		float newY =  deltaY*(((float)time)/50);
+		
+		
+		this.translate(newX, newY);
+		
+		
+		
+		
+	}
+
+	
+	/**
+	 * birds are filled ovals
+	 * draws object in its current color and size at
+	 * current location. Location of each object is
+	 * the center point of object. 
+	 */
+	public void draw(Graphics2D g) {
+		
+		AffineTransform saveAt = g.getTransform();
+		
+		
+		
+		
+		if(isSelected()){
+			
+			int R = Math.abs(255 - this.getColor().getRed());
+			int G = Math.abs(255 - this.getColor().getGreen());
+			int B = Math.abs(255 - this.getColor().getBlue());
+			g.setColor(new Color(R,G,B));
+			
+			g.transform(myTranslation);
+			g.transform(myRotation);
+			g.transform(myScale);
+			//g.fillOval((int)this.getLocationX(), (int)this.getLocationY(), this.size, this.size/2);//screen location
+			g.fillOval(0, 0, this.size, this.size/2);	//local space
+			for(BirdsWing obj: wings){
+				obj.draw(g);
+			}
+			
+			
+		}else{
+			
+			g.setColor(this.getColor()); 
+			//APPEND TRANSFORMS
+			g.transform(myTranslation);
+			g.transform(myRotation);
+			g.transform(myScale);
+			
+			//g.fillOval((int)this.getLocationX(),(int) this.getLocationY(), this.size, this.size/2);
+			g.fillOval(0, 0, this.size, this.size/2);//local space
+			for(int i = 0; i < wings.length; i++){
+				wings[i].draw(g);
+			}
+		}
+		
+		g.setTransform(saveAt);
+	}
+
+	//bounding circles for bird
+	public boolean collidesWith(ICollider otherObject) {
+		
+		return false;
+	}
+
+
+
+	public void handleCollision(ICollider otherObject) {
+		//Blank?
+		
+	}
+
+	@Override
+	public void addCollisionList(ICollider collobj) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void removeCollision(ICollider obj) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void clearCollisions(ArrayList<ICollider> collList) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public ArrayList<ICollider> getCollisionList() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setMark(boolean mark) {
+		this.mark = mark;
+		
+	}
+
+	@Override
+	public boolean getMark() {
+		
+		return this.mark;
+	}
+	
+	
+	@Override
+	public void setSelected(boolean yesNo) {
+		isSelected = yesNo;
+		
+	}
+
+	@Override
+	public boolean isSelected() {
+		
+		return isSelected;
+	}
+
+	@Override
+	public boolean contains(Point p) {
+		//mouse selection
+		int px = (int) p.getX();
+		int py = (int) p.getY();
+		
+		//shape location
+		int xLoc = (int)this.getLocationX();//keep in mind true center of circle
+		int yLoc = (int)this.getLocationY();
+		
+		if((px >= xLoc) && (px <= xLoc+size)
+			&& (py >= yLoc && (py <= yLoc+size/2))){return true;}
+		else{return false;}
+		
+	}
+
+	
+
+
+	
+
+}

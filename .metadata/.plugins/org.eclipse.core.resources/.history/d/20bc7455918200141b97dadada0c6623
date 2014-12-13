@@ -1,0 +1,51 @@
+package a4.Model.gameObjects;
+
+import java.awt.Color;
+import java.awt.geom.AffineTransform;
+
+import a4.Model.Point;
+
+public class BirdsWing {
+	private Point top, bottomLeft, bottomRight;
+	private Color myColor;
+	private AffineTransform myRotation, myTranslation, myScale;
+	
+	public BirdsWing(){
+		top = new Point(0,2);
+		bottomLeft = new Point(-1,-2);
+		bottomRight = new Point(1,-2);
+		
+		myRotation = new AffineTransform();
+		myTranslation = new AffineTransform();
+		myScale = new AffineTransform();
+	}
+	
+	//Following methods
+		//rotate,translate,resetTransform are AT related
+		public void rotate(double radians){
+			myRotation.rotate(radians);
+		}
+		
+		public void translate(double dx,double dy){
+			myTranslation.translate(dx,dy);
+		}
+		
+		public void resetTransform(){
+			myRotation.setToIdentity();
+			myTranslation.setToIdentity();
+			myScale.setToIdentity();
+		}
+		
+		public float getLocationX(){
+			
+			return (float) myTranslation.getTranslateX();
+		}
+		
+		public float getLocationY(){
+			
+			return (float) myTranslation.getTranslateY();
+		}
+	
+	
+	
+}

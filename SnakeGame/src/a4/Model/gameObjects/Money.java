@@ -3,6 +3,8 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.NoninvertibleTransformException;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -164,14 +166,27 @@ public class Money extends FixedObject implements ISelectable{
 	}
 
 	@Override
-	public boolean contains(Point p) {
+	public boolean contains(Point2D p) {
+		Point2D localPoint = null;
+		try{
+			localPoint = myTranslation.createInverse().transform(p,null);
+		}catch(NoninvertibleTransformException e1){
+			System.out.println("Error of type: " + e1);
+			//localPoint = new Point2D(this.getLocationX(),this.getLocationY());
+		}
+		
+		
 		//mouse selection
-		int px = (int) p.getX();
-		int py = (int) p.getY();
+		double px =  p.getX();
+		double py =  p.getY();
 		
 		//shape location
-		int xLoc = (int)this.getLocationX()-size/2;//keep in mind true center of circle
-		int yLoc = (int)this.getLocationY()-size/2;
+		double xLoc = this.getLocationX()-size/2;//keep in mind true center of circle
+		double yLoc = this.getLocationY()-size/2;
+		
+		/**
+		double xLoc = localPoint.getX()-size/2;//keep in mind true center of circle
+		double yLoc = localPoint.getY()-size/2;*/
 		
 		if((px >= xLoc) && (px <= xLoc+size)
 			&& (py >= yLoc && (py <= yLoc+size))){return true;}

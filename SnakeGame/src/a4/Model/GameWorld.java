@@ -20,6 +20,7 @@ import a4.Model.gameObjects.MoveableObject;
 import a4.Model.gameObjects.NorthWall;
 import a4.Model.gameObjects.Snakes;
 import a4.Model.gameObjects.SouthWall;
+import a4.Model.gameObjects.Sweeper;
 import a4.Model.gameObjects.Walls;
 import a4.Model.gameObjects.Weasel;
 import a4.Model.gameObjects.WestWall;
@@ -461,6 +462,25 @@ public class GameWorld implements IObservable, IGameWorld{
 		}else{
 			birdCount--;
 		}
+		}
+	}
+	
+	public void SweeperRespawn(){
+		if(this.getMode()){
+			for(GameObject obj: gameObjectCollection){
+				if(obj instanceof Sweeper){
+					if(((Sweeper)obj).getLifetime() == 0){
+						gameObjectCollection.remove(obj);
+						/**
+						 Sweeper newSweeper = makeSweeper();
+						 newSweeper.translate((random.nextInt(500)+10,random.nextInt(500)+10);//MAKE IT REFLECT WINDOW SIZE
+						 */
+					}else{
+						int x = ((Sweeper)obj).getLifetime();
+						((Sweeper)obj).setLifetime(x--);
+					}
+				}
+			}
 		}
 	}
 	

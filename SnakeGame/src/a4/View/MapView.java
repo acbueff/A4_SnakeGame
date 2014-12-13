@@ -2,13 +2,22 @@ package a4.View;
 
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.NoninvertibleTransformException;
+import java.awt.geom.Point2D;
 
 import javax.swing.JPanel;
+import javax.swing.Timer;
+
+
+
+
 
 import a4.Model.GameWorldProxy;
 import a4.Model.IObservable;
@@ -21,10 +30,11 @@ import a4.Model.gameObjects.GameObject;
  * @author Andreas
  *
  */
-public class MapView extends JPanel implements IObserver, MouseListener, MouseWheelListener{
+public class MapView extends JPanel implements IObserver,MouseListener,MouseMotionListener, MouseWheelListener{
 	
 	private GameWorldProxy gwp;
-	
+	private java.awt.Point oldPoint;
+	private java.awt.Point newPoint;
 	
 	
 	
@@ -35,7 +45,9 @@ public class MapView extends JPanel implements IObserver, MouseListener, MouseWh
 	private double h = windowTop - windowBottom;
 	private double w = windowRight - windowLeft;
 	
-	private AffineTransform worldToND, ndToScreen, theVTM;
+	private AffineTransform worldToND, ndToScreen, theVTM, inverseVTM;
+	
+	//Timer theTimer = new Timer(10, (ActionListener) this);
 	
 	
 	//update calls repaint on itself
@@ -48,6 +60,8 @@ public class MapView extends JPanel implements IObserver, MouseListener, MouseWh
 		this.repaint();
 		
 	}
+	
+	
 	
 	public void zoomIn(){
 		System.out.println("zoomIn was called");
@@ -69,7 +83,37 @@ public class MapView extends JPanel implements IObserver, MouseListener, MouseWh
 		this.repaint();
 	}
 	
+	public void panLeft(){
+		windowLeft -= w*0.0005;
+		windowRight -= w*0.0005;
+		//windowTop -= h*0.0005;
+		//windowBottom += h*0.0005;
+		this.repaint();
+	}
 	
+	public void panRight(){
+		windowLeft += w*0.0005;
+		windowRight += w*0.0005;
+		//windowTop -= h*0.0005;
+		//windowBottom += h*0.0005;
+		this.repaint();
+	}
+	
+	public void panUp(){
+		//windowLeft += w*0.0005;
+		//windowRight -= w*0.0005;
+		windowTop += h*0.0005;
+		windowBottom += h*0.0005;
+		this.repaint();
+	}
+	
+	public void panDown(){
+		//windowLeft += w*0.0005;
+				//windowRight -= w*0.0005;
+				windowTop -= h*0.0005;
+				windowBottom -= h*0.0005;
+				this.repaint();
+	}
 	
 	
 	
@@ -120,8 +164,23 @@ public class MapView extends JPanel implements IObserver, MouseListener, MouseWh
 	}
 	
 	public void mouseClicked(MouseEvent e) {
-		java.awt.Point get = e.getPoint();
-		Point p = new Point(get.x,get.y);
+		Point2D get = e.getPoint();
+		//Point temp = new Point(get.x,get.y);
+		worldToND = buildWorldToNDXform(windowRight,windowTop,windowLeft,windowBottom);
+		ndToScreen = buildNDToScreenXform(this.getWidth(),this.getHeight());
+		theVTM = (AffineTransform) ndToScreen.clone();
+		theVTM.concatenate(worldToND);
+		//inverse ATM
+		try{
+			inverseVTM = theVTM.createInverse();
+		}catch(NoninvertibleTransformException e1){
+			inverseVTM = theVTM; //MAY CHANGE WHAT TO DO LATER
+		}
+		
+		Point2D p = inverseVTM.transform(get, null);
+	
+		
+		
 		
 		if(e.isControlDown()){
 			for(GameObject obj1: gwp.getGameObjectCollection()){
@@ -161,7 +220,7 @@ public class MapView extends JPanel implements IObserver, MouseListener, MouseWh
 	public void mouseExited(MouseEvent arg0) {}
 
 	
-	public void mousePressed(MouseEvent arg0) {}
+	public void mousePressed(MouseEvent e) {oldPoint = e.getPoint(); }
 
 	
 	public void mouseReleased(MouseEvent arg0) {}
@@ -187,5 +246,21 @@ public class MapView extends JPanel implements IObserver, MouseListener, MouseWh
 		click =0;
 		
 	}
+	}
+
+	
+	public void mouseDragged(MouseEvent e) {
+		newPoint = e.getPoint();
+		//if(newPoint.getX() > oldPoint.getX()){
+			this.panRight();
+		//}
+		
+		
+	}
+
+	@Override
+	public void mouseMoved(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		
 	}
 }
