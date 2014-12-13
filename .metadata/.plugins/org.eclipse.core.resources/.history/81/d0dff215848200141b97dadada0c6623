@@ -71,8 +71,6 @@ public class MapView extends JPanel implements IObserver, MouseListener, MouseWh
 	
 	
 	
-	
-	
 	//SKELETON
 	//Iterate through the GameWorld
 	public void paintComponent(Graphics g){
@@ -168,7 +166,6 @@ public class MapView extends JPanel implements IObserver, MouseListener, MouseWh
 
 	//ZOOM IN. ZOOM OUT
 	public void mouseWheelMoved(MouseWheelEvent e) {
-		if(gwp.getMode()){
 		System.out.println("VALUE OF WHEEL:" + e.getWheelRotation());
 		double click = e.getWheelRotation();
 		if(click > 0){
@@ -187,5 +184,5 @@ public class MapView extends JPanel implements IObserver, MouseListener, MouseWh
 		click =0;
 		
 	}
-	}
+	
 }

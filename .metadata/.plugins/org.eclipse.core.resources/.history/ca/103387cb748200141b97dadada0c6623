@@ -28,12 +28,10 @@ public class MapView extends JPanel implements IObserver, MouseListener, MouseWh
 	
 	
 	
-	private static double  windowLeft = 0;
-	private static double windowRight = 600;
-	private static double windowTop = 600;
-	private static double windowBottom= 0;
-	private double h = windowTop - windowBottom;
-	private double w = windowRight - windowLeft;
+	private double windowLeft = 0;
+	private double windowRight = 600;
+	private double windowTop = 600;
+	private double windowBottom= 0;
 	
 	private AffineTransform worldToND, ndToScreen, theVTM;
 	
@@ -50,26 +48,23 @@ public class MapView extends JPanel implements IObserver, MouseListener, MouseWh
 	}
 	
 	public void zoomIn(){
-		System.out.println("zoomIn was called");
-		
-		windowLeft += w*0.0005;
-		windowRight -= w*0.0005;
-		windowTop -= h*0.0005;
-		windowBottom += h*0.0005;
+		double h = windowTop - windowBottom;
+		double w = windowRight - windowLeft;
+		windowLeft += w*0.05;
+		windowRight -= w*0.05;
+		windowTop -= h*0.05;
+		windowBottom += h*0.05;
 		this.repaint();
 	}
 	public void zoomOut(){
-		System.out.println("zoomOut was called");
-		//double h = windowTop - windowBottom;
-		//double w = windowRight - windowLeft;
-		windowLeft = windowLeft - w*0.0005;
-		windowRight = windowRight + w*0.0005;
-		windowTop += h*0.0005;
-		windowBottom -= h*0.0005;
+		double h = windowTop - windowBottom;
+		double w = windowRight - windowLeft;
+		windowLeft -= w*0.05;
+		windowRight += w*0.05;
+		windowTop += h*0.05;
+		windowBottom -= h*0.05;
 		this.repaint();
 	}
-	
-	
 	
 	
 	
@@ -168,24 +163,20 @@ public class MapView extends JPanel implements IObserver, MouseListener, MouseWh
 
 	//ZOOM IN. ZOOM OUT
 	public void mouseWheelMoved(MouseWheelEvent e) {
-		if(gwp.getMode()){
-		System.out.println("VALUE OF WHEEL:" + e.getWheelRotation());
-		double click = e.getWheelRotation();
-		if(click > 0){
-			for(int i = 0; i < click; i++){
-			 this.zoomIn();
-			}
+		
+		if(e.getWheelRotation() > 0){
+			
+			
+				this.zoomIn();
+			
 			
 		}
-		else if(click < 0){
+		else{
 			
-			for(int j = 0; j < Math.abs(click); j++){	
-			this.zoomOut();}
+				this.zoomOut();
 			
 		}
 		
-		click =0;
-		
 	}
-	}
+	
 }
