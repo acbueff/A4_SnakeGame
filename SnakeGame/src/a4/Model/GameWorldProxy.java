@@ -1,6 +1,7 @@
 package a4.Model;
 
 import java.awt.Color;
+import java.awt.geom.Point2D;
 import java.util.Random;
 
 import a4.Model.gameObjects.Food;
@@ -8,6 +9,7 @@ import a4.Model.gameObjects.GameObject;
 import a4.Model.gameObjects.GameObjectCollection;
 import a4.Model.gameObjects.Money;
 import a4.Model.gameObjects.Snakes;
+import a4.Model.gameObjects.Sweeper;
 import a4.View.IObserver;
 /**
  * code here to accept and hold a GameWorld, provide implementations
@@ -55,7 +57,9 @@ public class GameWorldProxy implements IGameWorld, IObservable{
 		
 	}
 		
-	
+	public void addSweeper(Point2D point){
+		realGameWorld.addSweeper(point);
+	}
 
 	@Override
 	public void notifyObservers() {

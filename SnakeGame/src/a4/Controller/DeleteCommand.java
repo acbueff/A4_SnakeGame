@@ -23,6 +23,7 @@ public class DeleteCommand extends AbstractAction{
 		for(GameObject obj: realGameWorld.getGameObjectCollection()){
 			if(obj instanceof ISelectable){
 				if(((ISelectable)obj).isSelected()){
+					
 					realGameWorld.getGameObjectCollection().remove(obj);
 				}
 			}

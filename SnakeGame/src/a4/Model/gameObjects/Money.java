@@ -181,8 +181,8 @@ public class Money extends FixedObject implements ISelectable{
 		double py =  p.getY();
 		
 		//shape location
-		double xLoc = this.getLocationX()-size/2;//keep in mind true center of circle
-		double yLoc = this.getLocationY()-size/2;
+		double xLoc = this.getLocationX();//+size/2;//keep in mind true center of circle
+		double yLoc = this.getLocationY();//+size/2;
 		
 		/**
 		double xLoc = localPoint.getX()-size/2;//keep in mind true center of circle
@@ -190,7 +190,9 @@ public class Money extends FixedObject implements ISelectable{
 		
 		if((px >= xLoc) && (px <= xLoc+size)
 			&& (py >= yLoc && (py <= yLoc+size))){return true;}
-		else{return false;}
+		else{
+			
+			return false;}
 		
 	}
 

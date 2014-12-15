@@ -1,0 +1,457 @@
+package a4.Controller;
+
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.Scanner;
+
+import javax.swing.ActionMap;
+import javax.swing.InputMap;
+import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JPanel;
+import javax.swing.KeyStroke;
+import javax.swing.Timer;
+import javax.swing.border.EtchedBorder;
+import javax.swing.border.LineBorder;
+
+import a4.Model.GameWorld;
+import a4.Model.gameObjects.Birds;
+import a4.Model.gameObjects.Food;
+import a4.Model.gameObjects.GameObject;
+import a4.Model.gameObjects.ICollider;
+import a4.Model.gameObjects.Money;
+import a4.Model.gameObjects.Snakes;
+import a4.Model.gameObjects.Walls;
+import a4.Model.gameObjects.Weasel;
+import a4.View.MapView;
+import a4.View.ScoreView;
+
+/**
+ * Creates GameWorld and manages user commands
+ * and updates GameWorld
+ * @author Andreas
+ *
+ */
+public class Game extends JFrame implements ActionListener{
+	private GameWorld gw;
+	private Scanner input;
+	private JPanel centerPanel;
+	private MapView mv;
+	private ScoreView sv;
+	private ButtonCommand bc;
+	private ArrayList<ICollider> removeList = new ArrayList<ICollider>();//what to remove from collision
+	
+	private int DELAY_IN_MSEC =20;
+	
+	
+	private TickCommand tickCmd;
+	private HitBodyCommand hitBodyCmd;
+	private HitBirdCommand hitBirdCmd;
+	private HitMoneyCommand hitMoneyCmd;
+	private EatFoodCommand eatFoodCmd;
+	private HitWallCommand hitWallCmd;
+	private HitWeaselCommand hitWeaselCmd;
+	private StrategiesCommand stratCmd;
+	
+	//COMMANDBAR COMMANDS
+	private PausePlayCommand ppCmd;
+	private DeleteCommand delCmd;
+	private QuitCommand quitCmd;
+	
+	
+	//SNAKE DIRECTION COMMANDS
+	NorthCommand northCmd;
+	SouthCommand southCmd;
+	EastCommand eastCmd;
+	WestCommand westCmd;
+	
+	private Timer timer;
+	
+
+	/**
+	 * Game Constructor, setsup GUI and assigns commands
+	 */
+	public Game(){
+		//variables active in game
+		gw = new GameWorld();
+		gw.initLayout();
+		//observers, views
+		mv = new MapView();
+		sv = new ScoreView();
+		
+		gw.addObserver(mv);
+		gw.addObserver(sv);
+		gw.notifyObservers();
+		
+		bc = new ButtonCommand(); 
+		
+		
+		//COMMAND OBJECTS
+		hitBodyCmd = new HitBodyCommand();
+		hitBirdCmd = new HitBirdCommand();
+		hitMoneyCmd = new HitMoneyCommand();
+		eatFoodCmd = new EatFoodCommand();
+		hitWallCmd = new HitWallCommand();
+		hitWeaselCmd = new HitWeaselCommand();
+		stratCmd = new StrategiesCommand();
+		
+		/**make tick global
+		 * TICKCOMMAND 
+		 */
+		tickCmd = new TickCommand(DELAY_IN_MSEC);
+		
+		//ACTUALLY DISPLAYED COMMANDS
+		ppCmd = new PausePlayCommand();
+		delCmd = new DeleteCommand();
+		quitCmd = new QuitCommand();
+		//COMMAND for Snake Directions
+		 northCmd = new NorthCommand();
+		 southCmd = new SouthCommand();
+		 eastCmd = new EastCommand();
+		 westCmd = new WestCommand();
+		//COMMAND for FileMenu
+		NewCommand newCmd = new NewCommand();
+		SaveCommand saveCmd = new SaveCommand();
+		UndoCommand undoCmd = new UndoCommand();
+		SoundCommand soundCmd = new SoundCommand();
+		AboutCommand aboutCmd = new AboutCommand();
+		
+		
+		
+		setSize(700,700 );
+		setTitle("Snake Game");
+		setLocation(100,10);
+		setDefaultCloseOperation(EXIT_ON_CLOSE);
+		
+		//MENU
+		JMenuBar bar = new JMenuBar();
+		JMenu fileMenu = new JMenu("File");
+		JMenuItem mItem = new JMenuItem("New");
+		mItem.setAction(newCmd);
+		fileMenu.add(mItem);
+		mItem = new JMenuItem("Save");
+		mItem.setAction(saveCmd);
+		fileMenu.add(mItem);
+		mItem = new JMenuItem("Undo");
+		mItem.setAction(undoCmd);
+		fileMenu.add(mItem);
+		
+		//Sound in FileMenu
+		JCheckBoxMenuItem soundItem = new JCheckBoxMenuItem("Sound");
+		soundItem.setAction(soundCmd);
+		fileMenu.add(soundItem);
+		
+		
+		mItem = new JMenuItem("About");
+		mItem.setAction(aboutCmd);
+		fileMenu.add(mItem);
+		mItem = new JMenuItem("Quit");
+		mItem.setAction(quitCmd);
+		fileMenu.add(mItem);
+		bar.add(fileMenu);
+		
+		//CommandMenu
+		JMenu commandMenu = new JMenu("Command");
+		JMenuItem cItem = new JMenuItem("Snake hit Body");
+		cItem.setAction(hitBodyCmd);
+		commandMenu.add(cItem);
+		
+		cItem = new JMenuItem("Bird hit Snake");
+		cItem.setAction(hitBirdCmd);
+		commandMenu.add(cItem);
+		
+		cItem = new JMenuItem("Snake hit Money");
+		cItem.setAction(hitMoneyCmd);
+		commandMenu.add(cItem);
+		
+		cItem = new JMenuItem("Snake eats Food");
+		cItem.setAction(eatFoodCmd);
+		commandMenu.add(cItem);
+		
+		cItem = new JMenuItem("Snake hit Wall");
+		cItem.setAction(hitWallCmd);
+		commandMenu.add(cItem);
+		
+		//Change Strategies
+		cItem = new JMenuItem("Change Strategies");
+		cItem.setAction(stratCmd);
+		commandMenu.add(cItem);
+		
+		//Snake collided with Weasel
+		cItem = new JMenuItem("Weasel hit Snake");
+		cItem.setAction(hitWeaselCmd);
+		commandMenu.add(cItem);
+		
+		bar.add(commandMenu);
+		
+		
+		this.setJMenuBar(bar);
+		
+		//Score Panel
+		JPanel topPanel = new JPanel();
+		
+		topPanel.setBorder (new LineBorder(Color.ORANGE,2));
+		this.add(topPanel,BorderLayout.NORTH);
+		
+		//SCORE VIEW
+		JLabel time = sv.getTimeLabel();
+		topPanel.add(time);
+		JLabel currentScore = sv.getScoreLabel();
+		topPanel.add(currentScore);
+		JLabel livesLeft = sv.getLives();
+		topPanel.add(livesLeft);
+		//ADD SOUND LABEL
+		JLabel soundState = sv.getSound();
+		topPanel.add(soundState);
+		
+		
+		//Connect Commands to Buttons on CommandPanel
+		
+		bc.getPausePlay().setAction(ppCmd);
+		bc.getDelete().setAction(delCmd);
+		bc.getQuit().setAction(quitCmd);
+		this.add(bc, BorderLayout.WEST);
+		
+		
+		//Center
+		
+		centerPanel = mv;//centerPanel is MapView
+		
+		centerPanel.setBorder(new EtchedBorder());
+		centerPanel.setBackground(Color.WHITE);
+		this.add(centerPanel,BorderLayout.CENTER);
+		
+		//ADD KeyStrokes to Frame
+		//when in focus
+		int mapName = JComponent.WHEN_IN_FOCUSED_WINDOW;
+		//For each Panel
+		InputMap cmap = centerPanel.getInputMap(mapName);
+		InputMap lmap = bc.getInputMap(mapName);
+		InputMap tmap = topPanel.getInputMap(mapName);
+		//KeyStrokes
+		KeyStroke downArrowKey = KeyStroke.getKeyStroke("DOWN");
+		KeyStroke upArrowKey = KeyStroke.getKeyStroke("UP");
+		KeyStroke rightArrowKey = KeyStroke.getKeyStroke("RIGHT");
+		KeyStroke leftArrowKey = KeyStroke.getKeyStroke("LEFT");
+		KeyStroke spaceKey = KeyStroke.getKeyStroke("SPACE");
+		KeyStroke delete = KeyStroke.getKeyStroke("DELETE");
+		//InputMap assign
+		//for south
+		cmap.put(downArrowKey, "down");
+		lmap.put(downArrowKey, "down");
+		tmap.put(downArrowKey, "down");
+		//for north
+		cmap.put(upArrowKey, "up");
+		lmap.put(upArrowKey, "up");
+		tmap.put(upArrowKey, "up");
+		//for east
+		cmap.put(rightArrowKey, "right");
+		lmap.put(rightArrowKey, "right");
+		tmap.put(rightArrowKey, "right");
+		//for west
+		cmap.put(leftArrowKey, "left");
+		lmap.put(leftArrowKey, "left");
+		tmap.put(leftArrowKey, "left");
+		//for space-bar change strategies
+		cmap.put(spaceKey, "space");
+		lmap.put(spaceKey, "space");
+		tmap.put(spaceKey, "space");
+		//for deleting objects
+		cmap.put(delete, "delete");
+		lmap.put(delete, "delete");
+		tmap.put(delete, "delete");
+		
+		//ActionMAP
+		ActionMap aCmap = centerPanel.getActionMap();
+		ActionMap aLmap = bc.getActionMap();
+		ActionMap aTmap = topPanel.getActionMap();
+		
+		//ActionMap assign
+		//forSouth
+		aCmap.put("down",southCmd);
+		aLmap.put("down",southCmd);
+		aTmap.put("down",southCmd);
+		//forNorth
+		aCmap.put("up",northCmd);
+		aLmap.put("up",northCmd);
+		aTmap.put("up",northCmd);
+		//forEast
+		aCmap.put("right",eastCmd);
+		aLmap.put("right",eastCmd);
+		aTmap.put("right",eastCmd);
+		//forWest
+		aCmap.put("left",westCmd);
+		aLmap.put("left",westCmd);
+		aTmap.put("left",westCmd);
+		//for space-bar change strategies
+		aCmap.put("space",stratCmd);
+		aLmap.put("space",stratCmd);
+		aTmap.put("space",stratCmd);
+		//for delete
+		aCmap.put("delete",delCmd);
+		aLmap.put("delete",delCmd);
+		aTmap.put("delete",delCmd);
+		
+		
+		//HIS CODE FROM PG 224
+		timer = new Timer(DELAY_IN_MSEC,this);
+		timer.start();
+		
+		
+		
+		setVisible(true);
+		
+	}
+	
+	
+
+
+
+
+
+	/**
+	 * Each event generated by the timer caught
+	 * invoke the Tick command
+	 */
+	public void actionPerformed(ActionEvent e) {
+		
+		gw.BirdRespawn(DELAY_IN_MSEC);
+		
+		for(GameObject obj: gw.getGameObjectCollection()){
+			if(obj instanceof Birds){
+				((Birds) obj).update();
+				mv.repaint();
+			}
+		}
+		
+		/**
+		 * BACKGROUND MUSIC
+		 * will only play if
+		 * soundON AND mode is true"play"
+		 * method to set background will
+		 * only be utilized if flag is true
+		 * flag true means a change occured
+		 * in sound or mode. 
+		 */
+		
+		if(gw.getFlag()){
+			
+			gw.loopBackground(gw.getSound(), gw.getMode());
+			gw.setFlag(false);
+		}
+		
+		
+		
+		
+		
+		/**
+		 * if false, then pause game animation
+		 * 
+		 */
+		
+		//changes pause play string of pauseplay button
+		bc.modePausePlay(gw.getMode());
+		//when mode is set to play
+		//disable the Delete command
+		if(gw.getMode()){
+			tickCmd.actionPerformed(e);
+			northCmd.setEnabled(true);
+			southCmd.setEnabled(true);
+			eastCmd.setEnabled(true);
+			westCmd.setEnabled(true);
+			bc.getDelete().getAction().setEnabled(false);
+		}else{
+			northCmd.setEnabled(false);
+			southCmd.setEnabled(false);
+			eastCmd.setEnabled(false);
+			westCmd.setEnabled(false);
+			bc.getDelete().getAction().setEnabled(true);
+		}
+		
+		//Determine which objects are colliding
+		for(GameObject obj: gw.getGameObjectCollection()){
+			if(obj instanceof ICollider){
+				ICollider firstObj = (ICollider)obj;
+				
+				for(GameObject obj1: gw.getGameObjectCollection()){
+					ICollider secondObj = (ICollider)obj1;
+					
+					if(firstObj instanceof Snakes){
+						if(secondObj instanceof Snakes){
+							
+							if(firstObj.collidesWith(secondObj)){
+								
+								firstObj.handleCollision(secondObj);
+								this.removeList.add(secondObj);
+							}
+						}
+					}
+					 if(secondObj != firstObj){
+						if(firstObj.collidesWith(secondObj)){
+							firstObj.handleCollision(secondObj);
+							this.removeList.add(secondObj);
+						}
+						
+					}
+				}
+			}
+		}
+		//Cause command for respective ICollision object to activate
+		
+		for(int o = 0; o < this.removeList.size(); o++){
+			if(this.removeList.get(o).getMark()){
+				if(this.removeList.get(o) instanceof Food){
+					this.eatFoodCmd.actionPerformed(e);
+					this.removeList.remove(o);
+				}
+				else if(this.removeList.get(o) instanceof Money){
+					this.hitMoneyCmd.actionPerformed(e);
+					this.removeList.remove(o);
+				}
+				else if(this.removeList.get(o) instanceof Snakes){//before: BodySegment
+					
+					this.hitBodyCmd.actionPerformed(e);
+					this.removeList.remove(o);
+				}
+				else if(this.removeList.get(o) instanceof Walls){
+					
+					this.hitWallCmd.actionPerformed(e);
+					this.removeList.remove(o);
+					for(int i = 0; i < this.removeList.size(); i++){
+						if(this.removeList.get(i) instanceof Walls){
+							this.removeList.remove(i);
+						}
+					}
+				}
+				else if(this.removeList.get(o) instanceof Weasel){
+					this.hitWeaselCmd.actionPerformed(e);
+					this.removeList.remove(o);
+				}
+				else if(this.removeList.get(o) instanceof Birds){
+					this.hitBirdCmd.actionPerformed(e);
+					this.removeList.remove(o);
+					
+				}
+		
+			}
+		}
+		this.removeList.clear();
+			
+			
+			
+			
+			
+		
+		centerPanel.repaint();//MAKE PUBLIC
+		
+	}
+	
+}

@@ -31,6 +31,7 @@ import a4.Model.gameObjects.Money;
 import a4.Model.gameObjects.Snakes;
 import a4.Model.gameObjects.Walls;
 import a4.Model.gameObjects.Weasel;
+import a4.Model.gameObjects.Sweeper;
 import a4.View.MapView;
 import a4.View.ScoreView;
 
@@ -48,7 +49,7 @@ public class Game extends JFrame implements ActionListener{
 	private ScoreView sv;
 	private ButtonCommand bc;
 	private ArrayList<ICollider> removeList = new ArrayList<ICollider>();//what to remove from collision
-	
+	private ArrayList<ICollider> removeSList = new ArrayList<ICollider>();//FOR SWEEPERS!@!!@!
 	private int DELAY_IN_MSEC =20;
 	
 	
@@ -85,6 +86,7 @@ public class Game extends JFrame implements ActionListener{
 		gw.initLayout();
 		//observers, views
 		mv = new MapView();
+		gw.setWindow(mv.getWindowRight(), mv.getWindowLeft(), mv.getWindowTop(), mv.getWindowBottom());
 		sv = new ScoreView();
 		
 		gw.addObserver(mv);
@@ -324,6 +326,8 @@ public class Game extends JFrame implements ActionListener{
 	public void actionPerformed(ActionEvent e) {
 		
 		gw.BirdRespawn(DELAY_IN_MSEC);
+		gw.SweeperRespawn();
+		gw.setWindow(mv.getWindowRight(), mv.getWindowLeft(), mv.getWindowTop(), mv.getWindowBottom());
 		
 		for(GameObject obj: gw.getGameObjectCollection()){
 			if(obj instanceof Birds){
@@ -397,7 +401,10 @@ public class Game extends JFrame implements ActionListener{
 					 if(secondObj != firstObj){
 						if(firstObj.collidesWith(secondObj)){
 							firstObj.handleCollision(secondObj);
-							this.removeList.add(secondObj);
+							if(firstObj instanceof Sweeper){
+								this.removeSList.add(secondObj);
+							}
+							else{ this.removeList.add(secondObj);}
 						}
 						
 					}
@@ -445,10 +452,39 @@ public class Game extends JFrame implements ActionListener{
 		}
 		this.removeList.clear();
 			
+
+		for(int s = 0; s < this.removeSList.size(); s++){
+			if(this.removeSList.get(s).getMark()){
+				if(this.removeSList.get(s) instanceof Weasel){
+					for(GameObject obj: gw.getGameObjectCollection()){
+						if(obj instanceof Weasel){
+							if(obj.equals(this.removeSList.get(s))){
+								gw.getGameObjectCollection().remove(obj);
+								
+							}
+						}
+					}
+					this.removeSList.remove(s);
+				}
+				else if(this.removeSList.get(s) instanceof Birds){
+					for(GameObject obj: gw.getGameObjectCollection()){
+						if(obj instanceof Birds){
+							if(obj.equals(this.removeSList.get(s))){
+								gw.getGameObjectCollection().remove(obj);
+							}
+						}
+					}
+					this.removeSList.remove(s);
+				}
+				else if(this.removeSList.get(s) instanceof Snakes){
+					System.out.println("Snake was hit by sweep");
+					this.hitWallCmd.actionPerformed(e);
+					this.removeSList.remove(s);
+				}
 			
-			
-			
-			
+			}
+		}
+		this.removeSList.clear();
 		
 		centerPanel.repaint();//MAKE PUBLIC
 		

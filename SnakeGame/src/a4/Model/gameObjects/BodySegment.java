@@ -26,13 +26,14 @@ public class BodySegment extends MoveableObject{
 	public BodySegment(int heading, int speed, float posX, float posY, Color newColor){
 		this.setHeading(heading);
 		this.setSpeed(speed);
-		this.setPointLocation(0, 0);
+		this.setPointLocation(posX, posY);
 		super.setColor(newColor);
 		
 		myRotation = new AffineTransform();
 		myTranslation = new AffineTransform();
 		myScale = new AffineTransform();
 		
+		this.translate(posX, posY);
 	}
 	
 	//Following methods
@@ -56,9 +57,17 @@ public class BodySegment extends MoveableObject{
 				return (float) myTranslation.getTranslateX();
 			}
 			
+			public float getPointX(){
+				return super.getLocationX();
+			}
+			
 			public float getLocationY(){
 				
 				return (float) myTranslation.getTranslateY();
+			}
+			
+			public float getPointY(){
+				return super.getLocationY();
 			}
 
 	//NOT implemented
@@ -76,6 +85,10 @@ public class BodySegment extends MoveableObject{
 		//this.setPointLocation(newX, newY);
 		
 	}
+	
+	public void update(){
+		this.translate(super.getLocationX(), super.getLocationY());
+	}
 
 
 	//Overriding for security
@@ -88,7 +101,7 @@ public class BodySegment extends MoveableObject{
 	public void draw(Graphics2D g) {
 		AffineTransform saveAt = g.getTransform();
 		g.setColor(this.getColor());
-		
+		//this.translate(super.getLocationX(), super.getLocationY());
 		g.transform(myTranslation);
 		g.transform(myRotation);
 		g.transform(myScale);

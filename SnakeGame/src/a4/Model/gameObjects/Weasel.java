@@ -261,32 +261,32 @@ public class Weasel extends MoveableObject implements ISelectable{
 
 	@Override
 	public boolean contains(Point2D p) {
+		//myTransform
+		AffineTransform my = (AffineTransform) myTranslation.clone();
+		AffineTransform Transform = (AffineTransform) myRotation.clone();
+		AffineTransform scale = (AffineTransform) myScale.clone();
+		
+		my.concatenate(Transform);
+		my.concatenate(scale);
+		
 		Point2D localPoint = null;
 		try{
-			localPoint = myTranslation.createInverse().transform(p,null);
+			
+			localPoint = my.createInverse().transform(p,null);
+			
 		}catch(NoninvertibleTransformException e1){
 			System.out.println("Error of type: " + e1);
 			//localPoint = new Point2D(this.getLocationX(),this.getLocationY());
 		}
 		
-		//mouse selection
-		double px =  p.getX();
-		double py =  p.getY();
 		
-		//shape location
-		double xLoc = this.getLocationX()-(size/2);//keep in mind true center of circle
-		double yLoc = this.getLocationY()-(size/4);//*/
+		double px = localPoint.getX();
+		double py = (localPoint.getY());
 		
-		/**
-		double xLoc = localPoint.getX()-(size/2);//keep in mind true center of circle
-		double yLoc = localPoint.getY()-(size/4);*/
 		
-		if((px >= xLoc) && (px <= xLoc+size)
-			&& (py >= yLoc && (py <= yLoc+size/2))){System.out.println("Weasel was selected!");return true;}
-		else{System.out.println("Weasel was NOT selected!");
-			System.out.println("Value of mousePointX: " + px +" mousPointY: "+py);
-			System.out.println("Value of localPoint: " + xLoc +" localPointY: "+yLoc);
-			;return false;}
+		if((px >= 0) && (px <= 0+size)
+			&& (py >= 0 && (py <= 0+size/2))){;return true;}
+		else{return false;}
 		
 	}
 	

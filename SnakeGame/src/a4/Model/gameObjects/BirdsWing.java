@@ -1,6 +1,7 @@
 package a4.Model.gameObjects;
 
 import java.awt.Color;
+import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 
@@ -8,14 +9,14 @@ import a4.Model.Point;
 
 public class BirdsWing {
 	private Point top, bottomLeft, bottomRight;
-	private Color myColor = Color.green;
+	private Color myColor;
 	private AffineTransform myRotation, myTranslation, myScale;
 	
 	public BirdsWing(){
 		top = new Point(0,20);
 		bottomLeft = new Point(-10,-20);
 		bottomRight = new Point(10,-20);
-		
+		myColor = Color.green;
 		myRotation = new AffineTransform();
 		myTranslation = new AffineTransform();
 		myScale = new AffineTransform();
@@ -67,6 +68,11 @@ public class BirdsWing {
 			//g.fillRect(0,0,40,40);
 			
 			g.setTransform(saveAt);
+		}
+
+		public void setColor(Color color) {
+			
+			this.myColor = color;
 		}
 		
 		

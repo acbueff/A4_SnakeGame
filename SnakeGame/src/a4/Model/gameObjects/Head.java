@@ -29,7 +29,7 @@ public class Head extends MoveableObject implements ISteerable{
 	public Head(int heading, int speed, float posX, float posY,Color newColor){
 		this.setHeading(heading);
 		this.setSpeed(speed);
-		this.setPointLocation(0, 0);
+		this.setPointLocation(posX, posY);
 		super.setColor(newColor);
 		
 		myRotation = new AffineTransform();
@@ -164,35 +164,7 @@ public class Head extends MoveableObject implements ISteerable{
 			p.addPoint((0 + H/3), (int)(0 + H*(Math.sqrt(3))/3));
 			break;
 		}
-			/**case 0:
-			p.addPoint(((int)this.getLocationX()), H*2/3 + (int)this.getLocationY());
-			p.addPoint((int)this.getLocationX() + H*2/3, (int)this.getLocationY() - H/3);
-			p.addPoint((int)this.getLocationX() - H*2/3, (int)this.getLocationY() - H/3);	
-			break;
-		case 90://fix it later, head too high
-			p.addPoint(((int)this.getLocationX())+(H*2)/3, ((int)this.getLocationY()));
-			p.addPoint(((int)this.getLocationX() - H/3), (int)(this.getLocationY() - H * (Math.sqrt(3))/3));
-			p.addPoint(((int)this.getLocationX() - H/3), (int)(this.getLocationY() + H*(Math.sqrt(3))/3));
-			break;
-		case 180://ISSUES IN DRAW
-			p.addPoint(((int)this.getLocationX()), ((int)this.getLocationY() - (H*2)/3));
-			p.addPoint(((int)this.getLocationX() + H*2/3), ((int)this.getLocationY() + H/3));
-			p.addPoint(((int)this.getLocationX() - H*2/3), ((int)this.getLocationY() + H/3));
-			break;
-		case 270://same problem
-		
-			p.addPoint(((int)this.getLocationX())-(H*2)/3, ((int)this.getLocationY()));
-			p.addPoint(((int)this.getLocationX() + H/3), (int)(this.getLocationY() - H * (Math.sqrt(3))/3));
-			p.addPoint(((int)this.getLocationX() + H/3), (int)(this.getLocationY() + H*(Math.sqrt(3))/3));
-			break;
-		default:
-			p.addPoint(((int)this.getLocationX())-(H*2)/3, ((int)this.getLocationY()));
-			p.addPoint(((int)this.getLocationX() + H/3), (int)(this.getLocationY() - H * (Math.sqrt(3))/3));
-			p.addPoint(((int)this.getLocationX() + H/3), (int)(this.getLocationY() + H*(Math.sqrt(3))/3));
-			break;
 			
-		} */
-		
 		g.fillPolygon(p);
 		//g.fillRect(0, 0, H, H);
 		
@@ -288,13 +260,7 @@ public class Head extends MoveableObject implements ISteerable{
 		}
 		else if(otherObject instanceof Walls){//SQUARE?
 			
-				/**
-				 * UNDER CONSTRUCTION
-				 */
-				int T2Y = (int) ((Walls)otherObject).getLocationY() + (((Walls)otherObject).getHeight()/2);
-				int L2X = (int) ((Walls)otherObject).getLocationX() - (((Walls)otherObject).getWidth()/2);
-				int B2Y = (int) ((Walls)otherObject).getLocationY() - (((Walls)otherObject).getHeight()/2);
-				int R2X = (int) ((Walls)otherObject).getLocationY() + (((Walls)otherObject).getWidth()/2);
+		
 				
 				
 				//RESOND TO INDIVIDUAL WALL
@@ -323,13 +289,6 @@ public class Head extends MoveableObject implements ISteerable{
 				}
 				
 				
-				/**
-				 if(L1X <= 7){ this.addCollisionList(otherObject); result = true; return result;}
-				else if(B1Y <= 6){this.addCollisionList(otherObject); result = true;return result;}
-				else if(R1X >= 594){this.addCollisionList(otherObject); result = true;return result;}
-				else if(T1Y >= 594){this.addCollisionList(otherObject); result = true;return result;}
-				else{result = false;}
-			*/
 		}
 		else if(otherObject instanceof Weasel){
 

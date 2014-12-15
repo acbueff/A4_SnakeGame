@@ -2,6 +2,7 @@ package a4.Model.gameObjects;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
@@ -155,6 +156,7 @@ public class Birds extends MoveableObject implements IDrawable, ICollider, ISele
 			//g.fillOval((int)this.getLocationX(), (int)this.getLocationY(), this.size, this.size/2);//screen location
 			g.fillOval(0, 0, this.size, this.size/2);	//local space
 			for(BirdsWing obj: wings){
+				obj.setColor(new Color(R,G,B));
 				obj.draw(g);
 			}
 			
@@ -170,6 +172,7 @@ public class Birds extends MoveableObject implements IDrawable, ICollider, ISele
 			//g.fillOval((int)this.getLocationX(),(int) this.getLocationY(), this.size, this.size/2);
 			g.fillOval(0, 0, this.size, this.size/2);//local space
 			for(int i = 0; i < wings.length; i++){
+				wings[i].setColor(Color.blue);
 				wings[i].draw(g);
 			}
 		}
@@ -189,6 +192,10 @@ public class Birds extends MoveableObject implements IDrawable, ICollider, ISele
 			wingIncrement *=-1;
 			
 		}
+	}
+	
+	public Rectangle getBounds(){
+		return new Rectangle((int) this.getLocationX(),(int)this.getLocationY(),this.size,this.size/2);
 	}
 
 	//bounding circles for bird
@@ -255,30 +262,30 @@ public class Birds extends MoveableObject implements IDrawable, ICollider, ISele
 
 	@Override
 	public boolean contains(Point2D p) {
+		
+		AffineTransform my = (AffineTransform) myTranslation.clone();
+		AffineTransform Transform = (AffineTransform) myRotation.clone();
+		AffineTransform scale = (AffineTransform) myScale.clone();
+		
+		my.concatenate(Transform);
+		my.concatenate(scale);
+		
 		Point2D localPoint = null;
 		try{
-			localPoint = myTranslation.createInverse().transform(p,null);
+			localPoint = my.createInverse().transform(p,null);
 		}catch(NoninvertibleTransformException e1){
 			System.out.println("Error of type: " + e1);
-			//localPoint = new Point2D(this.getLocationX(),this.getLocationY());
+			
 		}
 		
 		//mouse selection
-		double px =  p.getX();
-		double py = p.getY();
+		double px =  localPoint.getX();
+		double py = localPoint.getY();
 		
 		
-		  //shape location
-		double xLoc = this.getLocationX()-size;//keep in mind true center of circle
-		double yLoc = this.getLocationY()-size/2;
 		
-		/**
-		double xLoc = localPoint.getX();//keep in mind true center of circle
-		double yLoc = localPoint.getY();*/
-		
-		
-		if((px >= xLoc) && (px <= xLoc+size)
-			&& (py >= yLoc && (py <= yLoc+size/2))){return true;}
+		if((px >= 0) && (px <= 0 + size)
+			&& (py >= 0 && (py <= 0+size/2))){return true;}
 		else{return false;}
 		
 	}

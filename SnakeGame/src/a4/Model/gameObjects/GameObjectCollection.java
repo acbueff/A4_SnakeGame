@@ -12,6 +12,7 @@ public class  GameObjectCollection implements Iterable<GameObject>{ //IMPLEMENTS
 	
 	private ArrayList<GameObject> gameObjectArray;//Array to hold GameObjects
 	
+	
 	public GameObjectCollection(){
 		this.gameObjectArray = new ArrayList<GameObject>();
 	}
@@ -28,7 +29,9 @@ public class  GameObjectCollection implements Iterable<GameObject>{ //IMPLEMENTS
 		this.gameObjectArray.add(gObject);
 	}
 	
+	
 	public void remove(GameObject gObject){
+		
 		this.gameObjectArray.remove(gObject); 
 	}
 	
@@ -59,8 +62,9 @@ public class  GameObjectCollection implements Iterable<GameObject>{ //IMPLEMENTS
 
 		
 		public GameObject next() {
-			
+			//if(hasNext()){
 			currentIndex++;
+			//}
 			return(gameObjectArray.get(currentIndex));
 		
 		}

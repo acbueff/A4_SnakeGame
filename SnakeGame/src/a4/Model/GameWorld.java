@@ -1,8 +1,10 @@
 package a4.Model;
 
 import java.awt.Color;
+import java.awt.geom.Point2D;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Random;
 
 import javax.swing.JOptionPane;
@@ -25,7 +27,7 @@ import a4.Model.gameObjects.Walls;
 import a4.Model.gameObjects.Weasel;
 import a4.Model.gameObjects.WestWall;
 import a4.View.IObserver;
-
+import a4.View.MapView;
 
 
 /**
@@ -42,6 +44,12 @@ public class GameWorld implements IObservable, IGameWorld{
 	private final int WSMALL = 6;
 	private final int WLARGE = 600; 
 	private  int birdCount = 500;
+	
+	//private MapView mv = new MapView();
+	private static double winLeft = 0;
+	private static double winRight = 600;
+	private static double winTop = 600;
+	private static double winBottom= 0;
 	 
 	private static boolean mode = true;//play mode, true indicates play, false is pause
 	
@@ -79,6 +87,8 @@ public class GameWorld implements IObservable, IGameWorld{
 	
 	public Weasel makeWeasel(){return new Weasel(random.nextInt(361), random.nextInt(570)+10, random.nextInt(570)+10, Color.MAGENTA);}
 	
+	public Sweeper makeSweeper(){return new Sweeper();}
+	
 	public Sound foodSound(){
 		String slash = File.separator;
 		String soundDir = "." + slash + "sounds" + slash;
@@ -110,6 +120,12 @@ public class GameWorld implements IObservable, IGameWorld{
 	}
 	
 	
+	public void setWindow(double wR, double wL, double wT, double wB){
+		winRight = wR;
+		winLeft =wL;
+		winTop = wT;
+		winBottom = wB;
+	}
 	
 	
 	public Walls makeWall(String dir){
@@ -153,7 +169,7 @@ public class GameWorld implements IObservable, IGameWorld{
 		
 		//Class holds all game objects in an ArrayList	
 		gameObjectCollection = new GameObjectCollection();
-		
+		Iterator<GameObject> theElements  = gameObjectCollection.iterator();
 		//Snakes is a singleton
 		Snakes theSnake = makeSnake();
 		//Initializes theSnake with three BodySegment objects
@@ -172,6 +188,8 @@ public class GameWorld implements IObservable, IGameWorld{
 		Weasel secondWeasel = makeWeasel();
 		secondWeasel.strategyList(new FollowHeadingStrategy(secondWeasel),new ChaseSnakeStrategy(secondWeasel));
 		secondWeasel.translate(random.nextInt(570)+10,random.nextInt(570)+10);
+		Sweeper theSweeper = makeSweeper();
+		theSweeper.translate(random.nextInt(500)+10,random.nextInt(500)+10);
 		
 		
 		Walls nWall = makeWall("n");
@@ -179,11 +197,11 @@ public class GameWorld implements IObservable, IGameWorld{
 		Walls sWall = makeWall("s");
 		Walls wWall = makeWall("w");
 		NorthWall northWall = (NorthWall) makeNorthWall();
-		northWall.translate(WLARGE/2, WLARGE - (WSMALL/2));
+		northWall.translate(random.nextInt((int) (winRight -winLeft)), random.nextInt((int)(winTop -winBottom)));
 		SouthWall southWall = (SouthWall) makeSouthWall();
-		southWall.translate(WLARGE/2, WSMALL/2);
+		southWall.translate(random.nextInt((int) ( winRight -winLeft)), random.nextInt((int)(winTop -winBottom)));
 		EastWall eastWall = (EastWall) makeEastWall();
-		eastWall.translate(WLARGE - (WSMALL/2), WLARGE/2);
+		eastWall.translate(random.nextInt((int) (winRight -winLeft)),random.nextInt((int)(winTop-winBottom )));
 		WestWall westWall = (WestWall) makeWestWall();
 		westWall.translate(4,0);
 		//Add Game objects for initial Game layout 
@@ -193,6 +211,7 @@ public class GameWorld implements IObservable, IGameWorld{
 		 gameObjectCollection.add(theFood);
 		 //gameObjectCollection.add(firstWeasel);
 		 gameObjectCollection.add(secondWeasel);
+		 gameObjectCollection.add(theSweeper);
 		 //gameObjectCollection.add(nWall);
 		 gameObjectCollection.add(northWall);
 		 gameObjectCollection.add(southWall);
@@ -409,6 +428,7 @@ public class GameWorld implements IObservable, IGameWorld{
 					System.out.println("\n"+ "Money value: " + value);
 					gameUser.setScore(value);
 					System.out.println("Player score: " + gameUser.getScore() + "\n");
+					
 					gameObjectCollection.remove(money);
 					
 					break;
@@ -451,10 +471,13 @@ public class GameWorld implements IObservable, IGameWorld{
 		if(birdCount == 0){
 			for(GameObject obj : gameObjectCollection){
 				if(obj instanceof Birds){
-					gameObjectCollection.remove(obj);
-					Birds newBird = makeBird();
-					newBird.translate(random.nextInt(500)+10,random.nextInt(500)+10);
-					gameObjectCollection.add(newBird);
+					//gameObjectCollection.remove(obj);
+					//Birds newBird = makeBird();
+					((Birds)obj).resetTransform();
+					((Birds)obj).translate(random.nextInt(500)+10,random.nextInt(500)+10);
+					((Birds)obj).setHeading(random.nextInt(361));
+					((Birds)obj).rotate(90 - ((Birds)obj).getHeading());
+					//gameObjectCollection.add(newBird);
 					
 				}
 				birdCount = 500;
@@ -467,21 +490,30 @@ public class GameWorld implements IObservable, IGameWorld{
 	
 	public void SweeperRespawn(){
 		if(this.getMode()){
+			
 			for(GameObject obj: gameObjectCollection){
 				if(obj instanceof Sweeper){
-					if(((Sweeper)obj).getLifetime() == 0){
+					if(((Sweeper)obj).getLifetime() <= 0){
 						gameObjectCollection.remove(obj);
-						/**
+						
 						 Sweeper newSweeper = makeSweeper();
-						 newSweeper.translate((random.nextInt(500)+10,random.nextInt(500)+10);//MAKE IT REFLECT WINDOW SIZE
-						 */
+						 newSweeper.translate(random.nextInt(500+10),(random.nextInt(500)+10));//MAKE IT REFLECT WINDOW SIZE
+						 gameObjectCollection.add(newSweeper);
+						 
 					}else{
-						int x = ((Sweeper)obj).getLifetime();
-						((Sweeper)obj).setLifetime(x--);
+						
+						((Sweeper)obj).decLifetime();
+						
 					}
 				}
 			}
 		}
+	}
+	
+	public void addSweeper(Point2D point){
+		Sweeper is = makeSweeper();
+		is.translate(point.getX(),point.getY());
+		gameObjectCollection.add(is);
 	}
 	
 	/**

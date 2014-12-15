@@ -1,82 +1,237 @@
 package a4.Model.gameObjects;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.Random;
 
 import a4.Model.IDrawable;
 
 public class Sweeper extends MoveableObject implements IDrawable, ICollider{
-	
+	Random random =  new Random();
+	private static ArrayList<ICollider> hitList = new ArrayList<ICollider>();
 	private int lifetime = 500;
+	private int heading = random.nextInt(361);
+	private int size = 100;
+	private boolean mark;
+	Point2D[] Q;
+	Point2D[] R;
+	Point2D[] S;
+	private int LEVEL;
 	
 	private AffineTransform myRotation, myTranslation, myScale;
 	
 	
 	public Sweeper(){
+		this.lifetime = 500;
+		super.setSpeed(5);
+		this.setHeading(heading);
+		myRotation = new AffineTransform();
+		myTranslation = new AffineTransform();
+		myScale = new AffineTransform();
+		
+		
+		Q = new Point2D [4];
+		Q[0] = new Point2D.Double(random.nextInt(this.size), random.nextInt(this.size));
+		Q[1] = new Point2D.Double(random.nextInt(this.size), random.nextInt(this.size));
+		Q[2] = new Point2D.Double(random.nextInt(this.size), random.nextInt(this.size));
+		Q[3] = new Point2D.Double(random.nextInt(this.size), random.nextInt(this.size));
+
+
+		R = new Point2D [4];
+		R[0] = new Point2D.Double(random.nextInt(this.size), random.nextInt(this.size));
+		R[1] = new Point2D.Double(random.nextInt(this.size), random.nextInt(this.size));
+		R[2] = new Point2D.Double(random.nextInt(this.size), random.nextInt(this.size));
+		R[3] = new Point2D.Double(random.nextInt(this.size), random.nextInt(this.size));
+
+		
+
+		S = new Point2D [4];
+		S[0] = new Point2D.Double(random.nextInt(this.size), random.nextInt(this.size));
+		S[1] = new Point2D.Double(random.nextInt(this.size), random.nextInt(this.size));
+		S[2] = new Point2D.Double(random.nextInt(this.size), random.nextInt(this.size));
+		S[3] = new Point2D.Double(random.nextInt(this.size), random.nextInt(this.size));
+
+		this.setColor(Color.darkGray);
+		this.rotate(90 - this.getHeading());
+		
 		
 	}
 	
 	
-
-	@Override
-	public void addCollisionList(ICollider collobj) {
-		// TODO Auto-generated method stub
+	
+	public Rectangle getBounds(){
+		return new Rectangle((int) this.getLocationX(),(int)this.getLocationY(),this.size,this.size/2);
+	}
+	//Following methods
+		//rotate,translate,resetTransform are AT related
+		public void rotate(double radians){
+			myRotation.rotate(Math.toRadians(radians));
+		}
 		
-	}
-
-	@Override
-	public void removeCollision(ICollider obj) {
-		// TODO Auto-generated method stub
+		public void translate(double dx,double dy){
+			myTranslation.translate(dx,dy);
+		}
 		
-	}
-
-	@Override
-	public void clearCollisions(ArrayList<ICollider> collList) {
-		// TODO Auto-generated method stub
+		public void resetTransform(){
+			myRotation.setToIdentity();
+			myTranslation.setToIdentity();
+			myScale.setToIdentity();
+		}
 		
-	}
-
-	@Override
-	public ArrayList<ICollider> getCollisionList() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void setMark(boolean mark) {
-		// TODO Auto-generated method stub
+		public void scale(double sx, double sy){
+			myScale.scale(sx, sy);
+		}
 		
-	}
+		public float getLocationX(){
+			
+			return (float) myTranslation.getTranslateX();
+		}
+		
+		public float getLocationY(){
+			
+			return (float) myTranslation.getTranslateY();
+		}
+		
+	
 
-	@Override
-	public boolean getMark() {
-		// TODO Auto-generated method stub
-		return false;
-	}
+		public void handleCollision(ICollider otherObject) {
+			
+			otherObject.setMark(true);
+			this.removeCollision(otherObject);
+			
+			
+		}
 
-	@Override
+		@Override
+		public void addCollisionList(ICollider collobj) {
+			this.hitList.add(collobj);
+			
+		}
+
+		@Override
+		public void removeCollision(ICollider collobj) {
+			this.hitList.remove(collobj);
+			
+		}
+
+		@Override
+		public ArrayList<ICollider> getCollisionList() {
+			// TODO Auto-generated method stub
+			return this.hitList;
+		}
+
+		@Override
+		public void clearCollisions(ArrayList<ICollider> collList) {
+			collList.clear();
+		}
+		
+
+	
+
+		@Override
+		public void setMark(boolean mark) {
+			this.mark =mark;
+			
+		}
+
+		@Override
+		public boolean getMark() {
+			// TODO Auto-generated method stub
+			return this.mark;
+		}
+
+
+	/**
+	 * Collides with Bird Weasel n SnakeHead
+	 * @param otherObject
+	 * @return
+	 */
 	public boolean collidesWith(ICollider otherObject) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public void handleCollision(ICollider otherObject) {
-		// TODO Auto-generated method stub
 		
+		boolean result = false;
+		//circle bounding
+		//center
+		int thisCenterX = (int) this.getLocationX(); 
+		int thisCenterY = (int) this.getLocationY(); 
+		
+		
+		
+		for(int i = 0; i < this.hitList.size(); i++){
+			if(this.hitList.get(i) == otherObject){
+				return result;//should be false
+			}
+		}
+		
+		
+		if(otherObject instanceof Snakes){//not detecting
+			if(((Snakes) otherObject).getSnakeHead().getBounds().intersects(this.getBounds())){
+				this.addCollisionList(otherObject); result = true; return result;
+			}
+			
+		}
+		else if(otherObject instanceof Weasel){
+			if(((Weasel) otherObject).getBounds().intersects(this.getBounds())){
+				this.addCollisionList(otherObject); result = true; return result;
+			}
+		}
+		else if(otherObject instanceof Birds){
+			if(((Birds) otherObject).getBounds().intersects(this.getBounds())){
+				this.addCollisionList(otherObject); result = true; return result;
+			}
+		}
+		else{
+			result = false;
+		}
+		
+		return result;
 	}
 
-	@Override
+	
+	
 	public void draw(Graphics2D g) {
-		// TODO Auto-generated method stub
+		AffineTransform saveAt = g.getTransform();
 		
+		g.setColor(this.getColor()); 
+		//APPEND TRANSFORMS
+		g.transform(myTranslation);
+		g.transform(myRotation);
+		g.transform(myScale);
+		
+		
+		for (int b = 0; b <=2; b++) // draw the bezier lines
+		{
+			Point2D p1 = Q[b];
+			Point2D p2 = Q[b+1];
+			g.setColor(this.getColor());
+			g.drawLine( (int) p1.getX(), (int) p1.getY(), (int) p2.getX(), (int) p2.getY());
+		}
+		// draw the bezier curve
+		g.setColor(this.getColor());
+		drawBezierCurve(Q, g, LEVEL);
+		
+		g.setTransform(saveAt);
 	}
+	
+	
+	
+	
 
 	@Override
 	public void move(int time) {
-		// TODO Auto-generated method stub
+		float angle = (90 - this.getHeading());
+			
+		float deltaX = (int) (Math.cos(Math.toRadians(angle))*this.getSpeed());
+		float deltaY = (int) (Math.sin(Math.toRadians(angle))*this.getSpeed());
 		
+		float newX =  deltaX*(((float)time)/50);
+		float newY =  deltaY*(((float)time)/50);
+		
+		
+		this.translate(newX, newY);
 	}
 
 
@@ -90,5 +245,89 @@ public class Sweeper extends MoveableObject implements IDrawable, ICollider{
 	public void setLifetime(int lifetime) {
 		this.lifetime = lifetime;
 	}
+	
+	public void decLifetime(){
+		this.lifetime--;
+	}
+	
+	public int getHeading(){
+		return this.heading;
+	}
+	
+	public void drawBezierCurve(Point2D [] P, Graphics2D g, int Level)
+	{
+		int MaxLevel = 10;
+		if (  (straightEnough(P) ) || (Level > MaxLevel) )
+		{
+			g.drawLine((int) P[0].getX(), (int) P[0].getY(), (int) P[3].getX(), (int) P[3].getY());
+		}
+		else {
+			subdivideCurve(Q, R, S);
+			drawBezierCurve(R, g, Level+1);
+			drawBezierCurve(S, g, Level+1);
+		}
+	}
+
+	
+	
+	public void subdivideCurve(Point2D [] Q,Point2D [] R,Point2D [] S){
+		double x, y;
+		
+		R[0] = Q[0]; 
+		x = ( Q[0].getX() + Q[1].getX() )/2;
+		y = ( Q[0].getY() + Q[1].getY() )/2;
+		R[1] = new Point2D.Double(x,y); 
+		
+		x = ( (R[1].getX() )/2) + ((Q[1].getX()+Q[2].getX() )/4);
+		y = ( (R[1].getY())/2) + ((Q[1].getY()+Q[2].getY() )/4);
+		R[2] = new Point2D.Double(x,y); 
+		
+
+		S[3] = Q[3]; //	C[3] = A[3]
+		
+		x = ( Q[2].getX() + Q[3].getX() )/2;
+		y = ( Q[2].getY() + Q[3].getY() )/2;
+		S[2] = new Point2D.Double(x,y); //	C[2] = (A[2] + A[3])/2.0
+
+		x = ( ((Q[1].getX()+Q[2].getX())/4) + ((S[2].getX())/2) );
+		y = ( ((Q[1].getY()+Q[2].getY())/4) + ((S[2].getY())/2) );	
+		S[1] = new Point2D.Double(x,y); //	C[1] = (A[1]+A[2])/4.0 + C[2]/2.0; 
+		
+		x = ( R[2].getX() + S[1].getX() )/2;
+		y = ( R[2].getY() + S[1].getY() )/2;
+		R[3] = new Point2D.Double(x,y); //	B[3] = (B[2]+C[1])/2.0 
+		
+		S[0] = R[3]; //	C[0] = B[3]
+
+	}
+	
+	public double lengthOf(Point2D A, Point2D B)
+	{
+		 double dx = A.getX() - B.getX();
+		 double dy = A.getY() - B.getY();
+		 double result = ( Math.sqrt(dx*dx + dy*dy) );
+		 
+		 return result; // return distance
+	}
+	
+	boolean straightEnough(Point2D[] X)
+	{
+		//boolean result;
+
+		double dis1 = lengthOf(X[0], X[1]) + lengthOf(X[1],X[2]) + lengthOf(X[2],X[3]);
+		double dis2 = lengthOf(X[0], X[3]);
+		
+		if (Math.abs(dis1-dis2) < .001)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+		
+	}
+
+	
 
 }
