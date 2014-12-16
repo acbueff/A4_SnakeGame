@@ -192,7 +192,10 @@ public class GameWorld implements IObservable, IGameWorld{
 		theSweeper.translate(random.nextInt(500)+10,random.nextInt(500)+10);
 		
 		
-	
+		Walls nWall = makeWall("n");
+		Walls eWall = makeWall("e");
+		Walls sWall = makeWall("s");
+		Walls wWall = makeWall("w");
 		NorthWall northWall = (NorthWall) makeNorthWall();
 		northWall.translate(random.nextInt((int) (winRight -winLeft)), random.nextInt((int)(winTop -winBottom)));
 		SouthWall southWall = (SouthWall) makeSouthWall();
@@ -206,15 +209,18 @@ public class GameWorld implements IObservable, IGameWorld{
 		 gameObjectCollection.add(theBird);
 		 gameObjectCollection.add(theMoney);
 		 gameObjectCollection.add(theFood);
-		 gameObjectCollection.add(firstWeasel);
+		 //gameObjectCollection.add(firstWeasel);
 		 gameObjectCollection.add(secondWeasel);
 		 gameObjectCollection.add(theSweeper);
-		 
+		 //gameObjectCollection.add(nWall);
 		 gameObjectCollection.add(northWall);
 		 gameObjectCollection.add(southWall);
 		 gameObjectCollection.add(eastWall);
 		 gameObjectCollection.add(westWall);
-	
+		 //gameObjectCollection.add(eWall);
+		 //gameObjectCollection.add(sWall);
+		 //gameObjectCollection.add(wWall);
+		 
 		 
 		 this.notifyObservers();
 		 
@@ -465,12 +471,13 @@ public class GameWorld implements IObservable, IGameWorld{
 		if(birdCount == 0){
 			for(GameObject obj : gameObjectCollection){
 				if(obj instanceof Birds){
-					
+					//gameObjectCollection.remove(obj);
+					//Birds newBird = makeBird();
 					((Birds)obj).resetTransform();
 					((Birds)obj).translate(random.nextInt(500)+10,random.nextInt(500)+10);
 					((Birds)obj).setHeading(random.nextInt(361));
 					((Birds)obj).rotate(90 - ((Birds)obj).getHeading());
-					
+					//gameObjectCollection.add(newBird);
 					
 				}
 				birdCount = 500;

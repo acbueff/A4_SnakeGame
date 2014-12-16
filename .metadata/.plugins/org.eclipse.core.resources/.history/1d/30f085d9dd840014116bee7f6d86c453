@@ -120,14 +120,6 @@ public class Head extends MoveableObject implements ISteerable{
 		return H;
 	}
 	
-	public float getPointX(){
-		return super.getLocationX();
-	}
-	
-	public float getPointY(){
-		return super.getLocationY();
-	}
-	
 	//Security issues
 	public void setColor(Color newColor){
 		newColor = null;

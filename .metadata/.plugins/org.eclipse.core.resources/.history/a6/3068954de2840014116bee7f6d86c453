@@ -206,13 +206,6 @@ public class Snakes extends MoveableObject{
 		}	
 	}
 	
-	
-	public void newMove(int time){
-		
-		
-		
-	}
-	
 	/**
 	 * Updates bodySegment points
 	 * uses bodySegments at beginning of
@@ -297,8 +290,8 @@ public class Snakes extends MoveableObject{
 				//this.recallAff = new AffineTransform();
 				//recallAff.translate(Snakes.bodySegPos.get(0).getLocationX(),Snakes.bodySegPos.get(0).getLocationY());
 				Snakes.bodySegPos.get(0).setPointLocation(this.newLocFromBodySeg());
-				//Snakes.bodySegPos.get(0).update();
-				Snakes.bodySegPos.get(0).translate(Snakes.bodySegPos.get(0).getPointX(), Snakes.bodySegPos.get(0).getPointY());
+				Snakes.bodySegPos.get(0).update();
+				//Snakes.bodySegPos.get(0).translate(this.newAffFromSnake().getTranslateX(), this.newAffFromSnake().getTranslateY());
 				this.segMove(recall);
 				//this.segAffMove(recallAff);
 			}
@@ -337,12 +330,12 @@ public class Snakes extends MoveableObject{
 	 */
 	public boolean enoughSpace(int heading, float frontX,float frontY, float backX, float backY){
 		if(heading == 0 || heading == 180){
-			if(Math.abs(frontY - backY) >=21){ 		return true;}//test
+			if(Math.abs(frontY - backY) >=31){ 		return true;}//test
 			
 			else{ return false;}
 		}
 		else if(heading == 90 || heading == 270){
-			if(Math.abs(frontX - backX) >=21){     return true;}
+			if(Math.abs(frontX - backX) >=31){     return true;}
 			else{ return false;}
 		}else{return false;}
 			

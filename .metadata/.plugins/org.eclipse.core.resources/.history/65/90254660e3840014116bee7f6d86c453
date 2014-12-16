@@ -206,13 +206,6 @@ public class Snakes extends MoveableObject{
 		}	
 	}
 	
-	
-	public void newMove(int time){
-		
-		
-		
-	}
-	
 	/**
 	 * Updates bodySegment points
 	 * uses bodySegments at beginning of

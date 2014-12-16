@@ -27,11 +27,14 @@ public class Snakes extends MoveableObject{
 	private ArrayList<Integer> bodySegHeading;//tracks position of individual BodySegment headings
 	private static ArrayList<BodySegment> bodySegPos;//collects BodySegments comprising Snakes body
 	private Point oldHeadLoc;
+	private AffineTransform oldHeadAff;
 	private Point newHeadLoc;
+	private AffineTransform newHeadAff;
 	private  Point recall;
+	private AffineTransform recallAff;
 	private static boolean useRecall;
 	private Point newSegLoc;
-	
+	private AffineTransform newSegAff;
 	private int newSegCount;//Used to indicate whether new BodySegments have been added
 	private Random random = new Random();
 	private int delay = 1;
@@ -206,13 +209,6 @@ public class Snakes extends MoveableObject{
 		}	
 	}
 	
-	
-	public void newMove(int time){
-		
-		
-		
-	}
-	
 	/**
 	 * Updates bodySegment points
 	 * uses bodySegments at beginning of
@@ -291,14 +287,14 @@ public class Snakes extends MoveableObject{
 			}
 		}
 		else{
-			if(this.enoughSpace(this.snakeHead.getHeading(), this.snakeHead.getPointX(), this.snakeHead.getPointY(),
-					Snakes.bodySegPos.get(0).getPointX(), Snakes.bodySegPos.get(0).getPointY())){
+			if(this.enoughSpace(this.snakeHead.getHeading(), this.snakeHead.getLocationX(), this.snakeHead.getLocationY(),
+					Snakes.bodySegPos.get(0).getLocationX(), Snakes.bodySegPos.get(0).getLocationY())){
 				this.recall = new Point(Snakes.bodySegPos.get(0).getLocationX(),Snakes.bodySegPos.get(0).getLocationY());
 				//this.recallAff = new AffineTransform();
 				//recallAff.translate(Snakes.bodySegPos.get(0).getLocationX(),Snakes.bodySegPos.get(0).getLocationY());
 				Snakes.bodySegPos.get(0).setPointLocation(this.newLocFromBodySeg());
-				//Snakes.bodySegPos.get(0).update();
-				Snakes.bodySegPos.get(0).translate(Snakes.bodySegPos.get(0).getPointX(), Snakes.bodySegPos.get(0).getPointY());
+				Snakes.bodySegPos.get(0).update();
+				//Snakes.bodySegPos.get(0).translate(this.newAffFromSnake().getTranslateX(), this.newAffFromSnake().getTranslateY());
 				this.segMove(recall);
 				//this.segAffMove(recallAff);
 			}
@@ -337,12 +333,12 @@ public class Snakes extends MoveableObject{
 	 */
 	public boolean enoughSpace(int heading, float frontX,float frontY, float backX, float backY){
 		if(heading == 0 || heading == 180){
-			if(Math.abs(frontY - backY) >=21){ 		return true;}//test
+			if(Math.abs(frontY - backY) >=31){ 		return true;}//test
 			
 			else{ return false;}
 		}
 		else if(heading == 90 || heading == 270){
-			if(Math.abs(frontX - backX) >=21){     return true;}
+			if(Math.abs(frontX - backX) >=31){     return true;}
 			else{ return false;}
 		}else{return false;}
 			
@@ -364,7 +360,20 @@ public class Snakes extends MoveableObject{
 		}
 		return newPoint;
 	}
-
+	/**
+	public AffineTransform newAffFromBodySeg(){
+		AffineTransform newPoint;
+		if(this.snakeHead.getHeading() == 0){
+			//newPoint = new Point(this.snakeHead.getLocationX(),this.snakeHead.getLocationY()-10);
+		}else if(this.snakeHead.getHeading() == 90){
+			newPoint = new Point(this.snakeHead.getLocationX()-10,this.snakeHead.getLocationY());
+		}else if(this.snakeHead.getHeading() == 270){
+			newPoint = new Point(this.snakeHead.getLocationX(),this.snakeHead.getLocationY()+10);
+		}else{
+			newPoint = new Point(this.snakeHead.getLocationX()+10,this.snakeHead.getLocationY());
+		}
+		return newPoint;
+	}*/
 	
 	
 	/**

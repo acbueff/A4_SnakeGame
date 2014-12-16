@@ -33,7 +33,7 @@ public class BodySegment extends MoveableObject{
 		myTranslation = new AffineTransform();
 		myScale = new AffineTransform();
 		
-		//this.translate(posX, posY);
+		this.translate(posX, posY);
 	}
 	
 	//Following methods
